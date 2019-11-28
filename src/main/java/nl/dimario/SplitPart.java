@@ -12,7 +12,6 @@ import java.util.Map;
 public class SplitPart {
 
     private String relativeNodePath;
-    private String filePath;
     private SplitPart parent;
     private ObjectNode payLoad;
     List<SplitPart> children;
@@ -25,19 +24,6 @@ public class SplitPart {
             parent.addChild( this);
         }
     }
-
-//    public void initFromPayload() {
-//        String parentNodePath = "";
-//        if( parent != null) {
-//            parentNodePath = parent.getRelativeNodePath();
-//        }
-//        Iterator<Map.Entry<String, JsonNode>> fields = payLoad.fields();
-//        if(fields.hasNext()) {
-//            Map.Entry<String, JsonNode> entry = fields.next();
-//            String relativePath = entry.getKey();
-//            this.relativeNodePath = FilenameUtils.concat( parentNodePath, relativePath);
-//        }
-//    }
     
     public void addValue( String key,  JsonNode value) {
         payLoad.set( key, value);
@@ -45,9 +31,19 @@ public class SplitPart {
 
     public void addChild( SplitPart child) {
         if( children == null) {
-            children = new ArrayList<SplitPart>();
+            children = new ArrayList<>();
         }
         children.add( child);
+    }
+    
+    public String getNodePath() {
+        SplitPart part = this;
+        String result = "";
+        while( part != null ) {
+            result = FilenameUtils.concat( part.getRelativeNodePath(), result);
+            part = part.getParent();
+        }
+        return result;
     }
     
     public List<SplitPart> getChildren() {
@@ -61,15 +57,6 @@ public class SplitPart {
     public void setRelativeNodePath(String relativeNodePath) {
         this.relativeNodePath = relativeNodePath;
     }
-
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
-
 
     public SplitPart getParent() {
         return parent;
