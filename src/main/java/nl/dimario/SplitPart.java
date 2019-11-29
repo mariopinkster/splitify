@@ -7,10 +7,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 
 public class SplitPart {
 
@@ -48,20 +51,36 @@ public class SplitPart {
     }
     
     public void write( ObjectMapper objectMapper) throws IOException {
-        System.out.println( getNodePath());
-        String filePath = PathTranslation.translatedFilePath( "output", getNodePath());
-        filePath  = filePath + ".yaml";
-        System.out.println( filePath);
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        SequenceWriter sw = objectMapper.writerWithDefaultPrettyPrinter().writeValues( bos);
+        ObjectNode wrapper = objectMapper.createObjectNode();
+        String nodePath = getNodePath();
+        wrapper.set( nodePath, payLoad);
+        sw.write( wrapper);
+        postProcessAndSave(bos);
         
-        String outDir = FilenameUtils.getFullPathNoEndSeparator(filePath);
-        (new File(outDir)).mkdirs();
-        FileOutputStream fos = new FileOutputStream( new File( filePath));
-        SequenceWriter sw = objectMapper.writerWithDefaultPrettyPrinter().writeValues( fos);
-        sw.write( this.payLoad);
         if( children != null) {
             for( SplitPart child:  children) {
                 child.write( objectMapper);
             }
+        }
+    }
+    
+    private void postProcessAndSave( ByteArrayOutputStream bos) throws IOException {
+        
+        String data = bos.toString( StandardCharsets.UTF_8);
+        data = data.replace( "[${", "['${");
+        data = data.replace( "}]", "}']");
+        data = data.replace( "'[", "[");
+        data = data.replace( "]'", "]");
+        
+        String filePath = PathTranslation.translatedFilePath( "output", getNodePath());
+        filePath  = filePath + ".yaml";        
+        String outDir = FilenameUtils.getFullPathNoEndSeparator(filePath);
+        (new File(outDir)).mkdirs();
+        try( FileOutputStream fos = new FileOutputStream( new File( filePath))) {
+            IOUtils.write( data, fos, StandardCharsets.UTF_8);
         }
     }
     
