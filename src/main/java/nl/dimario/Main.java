@@ -22,10 +22,11 @@ public class Main
         try {
             YAMLFactory yamlFactory = new YAMLFactory();
             ObjectMapper objectMapper = new ObjectMapper( yamlFactory);
-            JsonNode root = (JsonNode) objectMapper.readTree( new File("src/test/resources/ethical-investments.yaml"));
+            ObjectNode root = (ObjectNode) objectMapper.readTree( new File("src/test/resources/ethical-investments.yaml"));
             Splitter splitter = new Splitter( objectMapper);            
             SplitPart splitted =  splitter.split(root);
             List<SplitPart> list = splitted.getChildren();
+            splitted.write( objectMapper);
 
 //            FileOutputStream fos = new FileOutputStream( new File( "src/test/resources/out.yaml"));
 //            SequenceWriter sw = objectMapper.writerWithDefaultPrettyPrinter().writeValues( fos);

@@ -1,13 +1,16 @@
 package nl.dimario;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.io.FilenameUtils;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import org.apache.commons.io.FilenameUtils;
 
 public class SplitPart {
 
@@ -37,22 +40,38 @@ public class SplitPart {
     }
     
     public String getNodePath() {
-        SplitPart part = this;
-        String result = "";
-        while( part != null ) {
-            result = FilenameUtils.concat( part.getRelativeNodePath(), result);
-            part = part.getParent();
+        String result = this.relativeNodePath;
+        if( parent != null) {
+            result = parent.getNodePath() + relativeNodePath;
         }
         return result;
+    }
+    
+    public void write( ObjectMapper objectMapper) throws IOException {
+        System.out.println( getNodePath());
+        String filePath = PathTranslation.translatedFilePath( "output", getNodePath());
+        filePath  = filePath + ".yaml";
+        System.out.println( filePath);
+        
+        String outDir = FilenameUtils.getFullPathNoEndSeparator(filePath);
+        (new File(outDir)).mkdirs();
+        FileOutputStream fos = new FileOutputStream( new File( filePath));
+        SequenceWriter sw = objectMapper.writerWithDefaultPrettyPrinter().writeValues( fos);
+        sw.write( this.payLoad);
+        if( children != null) {
+            for( SplitPart child:  children) {
+                child.write( objectMapper);
+            }
+        }
     }
     
     public List<SplitPart> getChildren() {
         return this.children;
     }
 
-    public String getRelativeNodePath() {
-        return relativeNodePath;
-    }
+//    public String getRelativeNodePath() {
+//        return relativeNodePath;
+//    }
 
     public void setRelativeNodePath(String relativeNodePath) {
         this.relativeNodePath = relativeNodePath;
@@ -62,7 +81,17 @@ public class SplitPart {
         return parent;
     }
 
-    public void setParent(SplitPart parent) {
-        this.parent = parent;
+//    public void setParent(SplitPart parent) {
+//        this.parent = parent;
+//    }
+
+    public ObjectNode getPayLoad() {
+        return payLoad;
     }
+
+    public void setPayLoad(ObjectNode payLoad) {
+        this.payLoad = payLoad;
+    }
+    
+    
 }

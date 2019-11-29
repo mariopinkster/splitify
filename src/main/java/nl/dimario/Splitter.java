@@ -2,7 +2,7 @@ package nl.dimario;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 
 import java.util.Iterator;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class Splitter {
 
-    public static int maxLevel = 3;
+    public static int maxLevel = 2;
 
     private ObjectMapper mapper;
     
@@ -19,15 +19,19 @@ public class Splitter {
         this.mapper = mapper;
     }
     
-    public SplitPart split( JsonNode node) {
+    public SplitPart split( ObjectNode node) {
         SplitPart rootSplit = new SplitPart(null, "", mapper.createObjectNode());
         return recurseSplit( rootSplit, node, 0);
     }
     
-    public SplitPart recurseSplit( SplitPart currentSplit, JsonNode node, int level) {
+    public SplitPart recurseSplit( SplitPart currentSplit, ObjectNode node, int level) {
         
         if( node.isValueNode()) {
             throw new RuntimeException( "Unexpected ValueNode in recursion");
+        }
+        if( level >= maxLevel) {
+            currentSplit.setPayLoad(node);
+            return currentSplit;
         }
         
         Iterator<Map.Entry<String,JsonNode>> fields = node.fields();
@@ -38,7 +42,11 @@ public class Splitter {
             if( value.isValueNode()) {
                 // add attribute to current split
                 currentSplit.addValue( key, (ValueNode) value);
+            } else if( value.isArray()) {
+                // if it is an array append the array as an attribute (for Hippo)
+                currentSplit.addValue( key, value);
             } else {
+                // It must be an object node.
                 // if key starts with slash start new split
                 // but use root split if at level 0
                 if( key.charAt(0) == '/')  {
@@ -49,13 +57,9 @@ public class Splitter {
                     } else {
                         newSplit = new SplitPart( currentSplit, key, mapper.createObjectNode());
                     }
-                    recurseSplit( newSplit, value, level + 1);
-                } else if( value.isArray()) {
-                    // if it is an array append the array as an attribute (for Hippo)
-                    currentSplit.addValue( key, value);
+                    recurseSplit( newSplit, (ObjectNode) value, level + 1);
                 } else {
-                    throw new RuntimeException( "Unxepected Situation");
-                }
+                    throw new RuntimeException( "Unxepected Situation");                }
             }
         }
         return currentSplit;
