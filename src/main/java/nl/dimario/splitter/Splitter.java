@@ -1,16 +1,10 @@
-package nl.dimario;
+package nl.dimario.splitter;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.Iterator;
@@ -19,13 +13,13 @@ import java.util.Map;
 
 public class Splitter {
 
-    public static int maxLevel = 4;
-
+    private int maxLevel = 4;
     private ObjectMapper mapper;
     
 
-    public Splitter( ObjectMapper mapper) {
+    public Splitter( ObjectMapper mapper, int maxLevel) {
         this.mapper = mapper;
+        this.maxLevel = maxLevel;
     }
     
     public SplitPart split( ObjectNode node) {
