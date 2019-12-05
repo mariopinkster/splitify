@@ -7,6 +7,7 @@ package nl.dimario.gui;
 
 import java.io.File;
 import javax.swing.JFileChooser;
+import nl.dimario.Config;
 import nl.dimario.splitter.SplitterDriver;
 
 
@@ -168,19 +169,31 @@ public class MainGui extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
+        Config config = new Config();
+        MainGui gui = new MainGui();
+        gui.readConfig( config);
+        if( args.length > 0) {
+            File inputFile = new File( args[0]);
+            gui.fullFileName = inputFile.getAbsolutePath();
+            gui.displayInputFile();
+        }
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                MainGui gui = new MainGui();
-                if( args.length > 0) {
-                    File inputFile = new File( args[0]);
-                    gui.fullFileName = inputFile.getAbsolutePath();
-                    gui.displayInputFile();
-                }
-                gui.setVisible(true);
+                gui.setVisible(true);                    
             }
         });
+        gui.writeConfig(config);
     }
 
+    private void readConfig( Config config) {
+        config.load();
+        this.cmbLevel.setSelectedItem( Integer.toString( config.getMaxLevel()));
+    }
+
+    private void writeConfig( Config config) {
+        config.setMaxLevel( Integer.parseInt( (String) cmbLevel.getSelectedItem()));
+        config.save();
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnGo;
     private javax.swing.JButton btnInput;
