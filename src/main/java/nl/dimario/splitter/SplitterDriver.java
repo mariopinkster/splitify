@@ -3,6 +3,7 @@ package nl.dimario.splitter;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -12,12 +13,13 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import nl.dimario.Constants;
 
 /**
  * Hello world!
  *
  */
-public class SplitterDriver
+public class SplitterDriver  implements Constants 
 {
 //    public static void main( String[] args ) {
 //
@@ -50,7 +52,8 @@ public class SplitterDriver
             ObjectMapper objectMapper = configureMapper();
             ObjectNode root = (ObjectNode) objectMapper.readTree( 
                     new File(inputPath));
-            Splitter splitter = new Splitter( objectMapper, maxLevel);            
+            root = stripDefinitionsConfig(root);
+            Splitter splitter = new Splitter( objectMapper, maxLevel);           
             SplitPart splitted =  splitter.split(root);
             List<SplitPart> list = splitted.getChildren();
             splitted.write( objectMapper);
@@ -59,5 +62,16 @@ public class SplitterDriver
             e.printStackTrace();
         }
         
+    }
+    
+    private ObjectNode stripDefinitionsConfig( ObjectNode node) {
+        JsonNode sub = node.get( DEFINITIONS);
+        if( sub != null) {
+            JsonNode subsub = sub.get( CONFIG);
+            if( subsub != null) {
+                return (ObjectNode) subsub;
+            }
+        }
+        return node;
     }
 }
