@@ -10,9 +10,12 @@ package nl.dimario;
  * @author mbp
  */
 public interface Constants {
+
+    static final int DEFAULTMAXLEVEL = 3;
     
     static final String DEFINITIONS = "definitions";
     static final String CONFIG = "config";
+    static final String PRIMARYTYPE =  "jcr:primaryType";
    
 
     static String CONFIGFILENAME = "splitify.properties";

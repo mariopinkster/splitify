@@ -13,7 +13,11 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+
 import nl.dimario.Constants;
+import nl.dimario.analyse.Analyzer;
+import nl.dimario.analyse.NodeTypeOptions;
 
 /**
  * Hello world!
@@ -52,26 +56,17 @@ public class SplitterDriver  implements Constants
             ObjectMapper objectMapper = configureMapper();
             ObjectNode root = (ObjectNode) objectMapper.readTree( 
                     new File(inputPath));
-            root = stripDefinitionsConfig(root);
-            Splitter splitter = new Splitter( objectMapper, maxLevel);           
-            SplitPart splitted =  splitter.split(root);
-            List<SplitPart> list = splitted.getChildren();
-            splitted.write( objectMapper);
+            Analyzer analyzer = new Analyzer();
+            analyzer.analyse( root);
+            Map<String, NodeTypeOptions> map = analyzer.getNodeTypeOptions();
+//            Splitter splitter = new Splitter( objectMapper, maxLevel);
+//            SplitPart splitted =  splitter.split(root);
+//            List<SplitPart> list = splitted.getChildren();
+//            splitted.write( objectMapper);
             
         } catch (IOException e) {
             e.printStackTrace();
         }
         
-    }
-    
-    private ObjectNode stripDefinitionsConfig( ObjectNode node) {
-        JsonNode sub = node.get( DEFINITIONS);
-        if( sub != null) {
-            JsonNode subsub = sub.get( CONFIG);
-            if( subsub != null) {
-                return (ObjectNode) subsub;
-            }
-        }
-        return node;
     }
 }
