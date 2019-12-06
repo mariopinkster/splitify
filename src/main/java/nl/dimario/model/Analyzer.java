@@ -48,7 +48,7 @@ public class Analyzer implements Constants {
             if( key.charAt(0) == '/') {
                 // Start new node then recurse
                 // Create split part info object and stuff it in new treenode
-                SplitInfo splitInfo = new SplitInfo( key);
+                SplitInfo splitInfo = new SplitInfo( key, jsonNode);
                 DefaultMutableTreeNode childNode;
                 if (treeNode == null) {
                     jRoot = new DefaultMutableTreeNode(key);
@@ -60,12 +60,6 @@ public class Analyzer implements Constants {
                 childNode.setUserObject( splitInfo);
                 analyseJtreeRecurse( childNode, value);
 
-            } else if( value.isValueNode()) {
-                if( PRIMARYTYPE.equals( key)) {
-                    // fill in primary node type in current split object
-                    SplitInfo splitInfo = (SplitInfo) treeNode.getUserObject();
-                    splitInfo.setNodeType( value.textValue());
-                }
             } else if( ! value.isArray()) {
                 analyseJtreeRecurse( treeNode, value);
             }

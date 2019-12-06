@@ -61,7 +61,10 @@ public class TreeGui extends JFrame {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
                 DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-                lblStatus.setText(selectedNode.getUserObject().toString());
+                Object uo = selectedNode.getUserObject();
+                if( uo instanceof SplitInfo) {
+                    // Ga dingen doen met deze splitinfo
+                }
             }
         });
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
