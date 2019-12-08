@@ -1,6 +1,8 @@
 package nl.dimario.gui;
 
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 
@@ -68,6 +70,14 @@ public class TreeGui extends JFrame {
             }
         });
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        final TreeGui guiFrame = this;
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing( WindowEvent event) {
+                GuiSettings settings = new GuiSettings();
+                settings.saveWindowDimension( guiFrame);
+            }
+        });
         this.setTitle("Splitify");
         this.pack();
     }
@@ -109,6 +119,8 @@ public class TreeGui extends JFrame {
                 gui.displayInputFile();
                 gui.loadTree();
             }
+            GuiSettings settings = new GuiSettings();
+            settings.loadWindowDimension( gui);
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     gui.setVisible(true);
