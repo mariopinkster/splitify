@@ -18,7 +18,7 @@ public interface Constants {
     static final String PRIMARYTYPE =  "jcr:primaryType";
    
 
-    static String CONFIGFILENAME = "splitify.properties";
+    static String CONFIGFILENAME = ".splitify.properties";
     static String USERHOMEDIR = "user.home";
     static String MAXLEVEL = "maxLevel";
 }

@@ -69,6 +69,8 @@ public class TreeGui extends JFrame {
                 }
             }
         });
+
+        // On close save the current main window size and position
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         final TreeGui guiFrame = this;
         this.addWindowListener(new WindowAdapter() {

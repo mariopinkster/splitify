@@ -1,10 +1,13 @@
 package nl.dimario.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletionService;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import nl.dimario.Constants;
+import nl.dimario.splitter.SplitPart;
 
 public class SplitInfo implements Constants {
 
@@ -12,6 +15,8 @@ public class SplitInfo implements Constants {
     private String dirSegment;
     private String nodeType;
     private JsonNode jsonNode;
+    private List<SplitInfo> children;
+    private SplitInfo parent;
 
     public SplitInfo( String nodeSegment, JsonNode jsonNode) {
         this.jsonNode = jsonNode;
@@ -29,6 +34,15 @@ public class SplitInfo implements Constants {
             this.setNodeType( "unknown node type");
         }
     }
+
+    public void addChild( SplitInfo child) {
+        if( children == null) {
+            children = new ArrayList<>();
+        }
+        children.add( child);
+        child.setParent( this);
+    }
+
 
     public String getNodeSegment() {
         return nodeSegment;
@@ -61,4 +75,14 @@ public class SplitInfo implements Constants {
         this.jsonNode = jsonNode;
     }
 
-}
+    public List<SplitInfo> getChildren() {
+        return children;
+    }
+
+    public SplitInfo getParent() {
+        return parent;
+    }
+
+    public void setParent(SplitInfo parent) {
+        this.parent = parent;
+    }}

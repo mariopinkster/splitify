@@ -7,11 +7,13 @@ import nl.dimario.Constants;
 import java.util.*;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 public class Analyzer implements Constants {
 
     private boolean isDefCon;
     private DefaultMutableTreeNode jRoot = null;
+    private SplitInfo splitInfoRoot = null;
 
     public Analyzer() {
         isDefCon = false;
@@ -33,6 +35,7 @@ public class Analyzer implements Constants {
     public DefaultMutableTreeNode makeJtree( JsonNode rootNode) {
         rootNode = stripDefinitionsConfig( rootNode);
         analyseJtreeRecurse( null, rootNode);
+        linkSplitInfo( this.jRoot, this.splitInfoRoot);
         return this.jRoot;
     }
 
@@ -49,6 +52,10 @@ public class Analyzer implements Constants {
                 // Start new node then recurse
                 // Create split part info object and stuff it in new treenode
                 SplitInfo splitInfo = new SplitInfo( key, jsonNode);
+                // Keep track of the root SplitInfo
+                if( splitInfoRoot == null) {
+                    splitInfoRoot = splitInfo;
+                }
                 DefaultMutableTreeNode childNode;
                 if (treeNode == null) {
                     jRoot = new DefaultMutableTreeNode(key);
@@ -63,6 +70,21 @@ public class Analyzer implements Constants {
             } else if( ! value.isArray()) {
                 analyseJtreeRecurse( treeNode, value);
             }
+        }
+    }
+
+    private void linkSplitInfo( DefaultMutableTreeNode treeNode, SplitInfo splitInfo) {
+
+        if( treeNode.isLeaf()) {
+            return;
+        }
+
+        Enumeration<TreeNode> children = treeNode.children();
+        while( children.hasMoreElements()) {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) children.nextElement();
+            SplitInfo childInfo = (SplitInfo) child.getUserObject();
+            splitInfo.addChild( childInfo);
+            linkSplitInfo( child, childInfo);
         }
     }
 }
