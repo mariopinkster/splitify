@@ -130,10 +130,20 @@ public class TreeGui extends JFrame implements ItemListener {
         pnlRight.add(pnlOptions, BorderLayout.NORTH);
     }
 
-    private void makeSaveButtons() {
-        JPanel  pnlSave = new JPanel();
-        pnlSave.add( new JLabel( "save buttons"));
-        pnlRight.add( pnlSave, BorderLayout.SOUTH);
+    private void makeButtons() {
+        JPanel  buttons = new JPanel();
+        buttons.setLayout( new FlowLayout(FlowLayout.CENTER));
+
+        JButton quitski = new JButton( "quit");
+        JButton thisPreview = new JButton( "save only this preview");
+        JButton saveAll = new JButton( "save all");
+        JButton loadNew = new JButton( "load new input file");
+
+        buttons.add( quitski);
+        buttons.add( thisPreview );
+        buttons.add( saveAll);
+        buttons.add( loadNew);
+        pnlRight.add( buttons, BorderLayout.SOUTH);
     }
 
     private void makeMisc() {
@@ -168,7 +178,7 @@ public class TreeGui extends JFrame implements ItemListener {
         makeTree();
         makePreview();
         makeOptions();
-        makeSaveButtons();
+        makeButtons();
         makeMisc();
 
         this.pack();
