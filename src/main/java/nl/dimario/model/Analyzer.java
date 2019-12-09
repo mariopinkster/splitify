@@ -1,7 +1,10 @@
 package nl.dimario.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
+
 import nl.dimario.Constants;
 
 import java.util.*;
@@ -11,12 +14,12 @@ import javax.swing.tree.TreeNode;
 
 public class Analyzer implements Constants {
 
-    private boolean isDefCon;
+    private boolean addDefCon;
     private DefaultMutableTreeNode jRoot = null;
     private SplitInfo splitInfoRoot = null;
 
     public Analyzer() {
-        isDefCon = false;
+        addDefCon = false;
     }
 
     private JsonNode stripDefinitionsConfig( JsonNode node) {
@@ -24,16 +27,56 @@ public class Analyzer implements Constants {
         if( sub != null) {
             JsonNode subsub = sub.get( CONFIG);
             if( subsub != null) {
-                isDefCon = true;
+                addDefCon = true;
                 return subsub;
             }
         }
-        isDefCon = false;
+        addDefCon = false;
         return node;
     }
 
+    private void preprocessArrays( JsonNode node, ObjectMapper mapper) {
+
+        if( node.isObject()) {
+            Iterator<Map.Entry<String,JsonNode>> fields = node.fields();
+            while(fields.hasNext()) {
+                Map.Entry<String, JsonNode> field = fields.next();
+                String key = field.getKey();
+                JsonNode value = field.getValue();
+                if( value.isArray()) {
+                    JsonNode asString = convertArray( mapper, (ArrayNode) value);
+                    field.setValue( asString);
+                } else if( value.isObject()) {
+                    preprocessArrays( value, mapper);
+                }
+            }
+        }
+    }
+
+    private ValueNode convertArray(ObjectMapper mapper, ArrayNode array) {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "[");
+        boolean addComma = false;
+        for( int i = 0; i < array.size(); i++) {
+            if( addComma) {
+                sb.append( ", ");
+            }
+            addComma = true;
+            String item = array.get(i).asText();
+            sb.append( item);
+        }
+        sb.append( "]");
+        ValueNode valueNode = mapper.convertValue( sb, ValueNode.class);
+        return valueNode;
+    }
+
+
     public DefaultMutableTreeNode makeJtree( JsonNode rootNode) {
         rootNode = stripDefinitionsConfig( rootNode);
+        ObjectMapper mapper = Mapper.getMapper();
+        preprocessArrays( rootNode, mapper);
         analyseJtreeRecurse( null, rootNode);
         linkSplitInfo( this.jRoot, this.splitInfoRoot);
         return this.jRoot;

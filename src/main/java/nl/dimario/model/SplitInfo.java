@@ -7,7 +7,6 @@ import java.util.concurrent.CompletionService;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import nl.dimario.Constants;
-import nl.dimario.splitter.SplitPart;
 
 public class SplitInfo implements Constants {
 
@@ -43,6 +42,17 @@ public class SplitInfo implements Constants {
         child.setParent( this);
     }
 
+    public String getNodePath() {
+        String result = this.nodeSegment;
+        if( parent != null) {
+            result = parent.getNodePath() + nodeSegment;
+        }
+        return result;
+    }
+
+    public String getDisplayLabel() {
+        return String.format( "%s = %s", nodeSegment, nodeType);
+    }
 
     public String getNodeSegment() {
         return nodeSegment;

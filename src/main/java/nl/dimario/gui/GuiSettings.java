@@ -16,10 +16,10 @@ public class GuiSettings implements Constants {
     static private final String HEIGHT = "window.height";
     static private final String WIDTH= "window.width";
 
-    private int left;
-    private int top;
-    private int width;
-    private int height;
+    private int left = 70;
+    private int top = 50;
+    private int width = 421;
+    private int height = 367;
 
     public void saveWindowDimension( JFrame frame) {
         this.height = frame.getHeight();
@@ -41,10 +41,10 @@ public class GuiSettings implements Constants {
         File configFile = new File( homedir, CONFIGFILENAME);
         try( FileInputStream fis = new FileInputStream( configFile)) {
             properties.load(fis);
-            this.top = Integer.parseInt( properties.getProperty( TOP, "50"));
-            this.left = Integer.parseInt( properties.getProperty( LEFT, "70"));
-            this.width = Integer.parseInt( properties.getProperty( WIDTH, "400"));
-            this.height = Integer.parseInt( properties.getProperty( HEIGHT, "600"));
+            this.top = Integer.parseInt( properties.getProperty( TOP));
+            this.left = Integer.parseInt( properties.getProperty( LEFT));
+            this.width = Integer.parseInt( properties.getProperty( WIDTH));
+            this.height = Integer.parseInt( properties.getProperty( HEIGHT));
         } catch (IOException ex) {
             // TODO  set status
         }

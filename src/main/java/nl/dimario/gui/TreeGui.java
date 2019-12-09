@@ -19,6 +19,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 
 import nl.dimario.model.Analyzer;
+import nl.dimario.model.Mapper;
+import nl.dimario.model.Renderer;
 import nl.dimario.model.SplitInfo;
 
 public class TreeGui extends JFrame {
@@ -26,8 +28,14 @@ public class TreeGui extends JFrame {
     private static final int DISPLAYLENGTH = 52;
     private String fullFileName;
     private JTree tree;
+    JTextPane preview;
     private JLabel lblInput;
     private JLabel lblStatus;
+    private Renderer renderer;
+
+    public TreeGui() {
+        this.renderer = new Renderer();
+    }
 
     private void displayInputFile() {
         String display = fullFileName;
@@ -40,6 +48,15 @@ public class TreeGui extends JFrame {
 
     private void buildGui() {
 
+        this.setTitle("Splitify");
+
+        JPanel pnlLeft = new JPanel();
+        pnlLeft.setLayout( new BorderLayout());
+        JPanel pnlRight = new JPanel();
+        pnlRight.setLayout( new BorderLayout());
+        JSplitPane splitski = new JSplitPane( SwingConstants.VERTICAL, pnlLeft, pnlRight);
+        this.add( splitski, BorderLayout.CENTER);
+
         tree = new JTree() {
             public String convertValueToText(Object value, boolean selected,
                                              boolean expanded, boolean leaf, int row,
@@ -48,27 +65,39 @@ public class TreeGui extends JFrame {
                     Object uo = ((DefaultMutableTreeNode)value).getUserObject();
                     if( uo instanceof SplitInfo) {
                         SplitInfo si = (SplitInfo) uo;
-                        return String.format( "%s = %s", si.getNodeSegment(), si.getNodeType());
+                        return si.getDisplayLabel();
                     }
                 }
                 return super.convertValueToText(value,selected,expanded,leaf,row,hasFocus);
             }
         };
-        add(new JScrollPane(tree));
-        lblStatus = new JLabel();
-        add( lblStatus, BorderLayout.SOUTH);
-        lblInput = new JLabel();
-        add( lblInput, BorderLayout.NORTH);
+        // TODO valueChanged() doet niet wat ik wil
+        // TODO en render preview moet nog een boolean in voor wel/geen recursie
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
                 DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
                 Object uo = selectedNode.getUserObject();
                 if( uo instanceof SplitInfo) {
-                    // Ga dingen doen met deze splitinfo
+                    try {
+                        String content = renderer.preview((SplitInfo) uo, true);
+                        preview.setText( content);
+                    } catch( Exception x) {
+                        preview.setText( "ERROR: " + x.getMessage());
+                    }
                 }
             }
         });
+        pnlLeft.add(new JScrollPane(tree), BorderLayout.CENTER);
+
+        preview = new JTextPane();
+        preview.setText( "(preview)");
+        pnlRight.add( new JScrollPane(preview), BorderLayout.CENTER);
+
+        lblStatus = new JLabel();
+        add( lblStatus, BorderLayout.SOUTH);
+        lblInput = new JLabel();
+        add( lblInput, BorderLayout.NORTH);
 
         // On close save the current main window size and position
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -80,23 +109,13 @@ public class TreeGui extends JFrame {
                 settings.saveWindowDimension( guiFrame);
             }
         });
-        this.setTitle("Splitify");
         this.pack();
-    }
-
-    private ObjectMapper configureMapper() {
-        YAMLFactory yamlFactory = new YAMLFactory();
-        yamlFactory.configure( YAMLGenerator.Feature.MINIMIZE_QUOTES, true);
-        yamlFactory.configure( YAMLGenerator.Feature.WRITE_DOC_START_MARKER, false);
-        ObjectMapper mapper = new ObjectMapper( yamlFactory);
-        mapper.configure( SerializationFeature.INDENT_OUTPUT, true);
-        return mapper;
     }
 
     private void loadTree() throws IOException {
 
-        ObjectMapper om = configureMapper();
-        ObjectNode rootNode = (ObjectNode) om.readTree(
+        ObjectMapper mapper = Mapper.getMapper();
+        ObjectNode rootNode = (ObjectNode) mapper.readTree(
                 new File( fullFileName));
 
         Analyzer analyzer = new Analyzer();
