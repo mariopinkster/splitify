@@ -65,7 +65,9 @@ public class Analyzer implements Constants {
             }
             addComma = true;
             String item = array.get(i).asText();
+            sb.append( "'");
             sb.append( item);
+            sb.append( "'");
         }
         sb.append( "]");
         ValueNode valueNode = mapper.convertValue( sb, ValueNode.class);

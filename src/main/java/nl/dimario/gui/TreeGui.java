@@ -27,6 +27,10 @@ public class TreeGui extends JFrame {
 
     private static final int DISPLAYLENGTH = 52;
     private String fullFileName;
+
+    JPanel pnlLeft;
+    JPanel pnlRight;
+
     private JTree tree;
     JTextPane preview;
     private JLabel lblInput;
@@ -46,16 +50,16 @@ public class TreeGui extends JFrame {
         lblInput.setText(display);
     }
 
-    private void buildGui() {
-
-        this.setTitle("Splitify");
-
-        JPanel pnlLeft = new JPanel();
+    private void makeSplitPanels() {
+        pnlLeft = new JPanel();
         pnlLeft.setLayout( new BorderLayout());
-        JPanel pnlRight = new JPanel();
+        pnlRight = new JPanel();
         pnlRight.setLayout( new BorderLayout());
         JSplitPane splitski = new JSplitPane( SwingConstants.VERTICAL, pnlLeft, pnlRight);
         this.add( splitski, BorderLayout.CENTER);
+    }
+
+    private void makeTree() {
 
         tree = new JTree() {
             public String convertValueToText(Object value, boolean selected,
@@ -71,7 +75,6 @@ public class TreeGui extends JFrame {
                 return super.convertValueToText(value,selected,expanded,leaf,row,hasFocus);
             }
         };
-        // TODO valueChanged() doet niet wat ik wil
         // TODO en render preview moet nog een boolean in voor wel/geen recursie
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             @Override
@@ -89,18 +92,33 @@ public class TreeGui extends JFrame {
             }
         });
         pnlLeft.add(new JScrollPane(tree), BorderLayout.CENTER);
+    }
 
+    private void makePreview() {
         preview = new JTextPane();
         preview.setText( "(preview)");
         pnlRight.add( new JScrollPane(preview), BorderLayout.CENTER);
+    }
 
+    private void makeOptions() {
+        JPanel pnlOptions = new JPanel();
+        pnlOptions.add( new JLabel( "options"));
+        pnlRight.add( pnlOptions, BorderLayout.NORTH);
+    }
+
+    private void makeSaveButtons() {
+        JPanel  pnlSave = new JPanel();
+        pnlSave.add( new JLabel( "save buttons"));
+        pnlRight.add( pnlSave, BorderLayout.SOUTH);
+    }
+
+    private void makeMisc() {
         lblStatus = new JLabel();
         add( lblStatus, BorderLayout.SOUTH);
         lblInput = new JLabel();
         add( lblInput, BorderLayout.NORTH);
 
         // On close save the current main window size and position
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         final TreeGui guiFrame = this;
         this.addWindowListener(new WindowAdapter() {
             @Override
@@ -109,6 +127,20 @@ public class TreeGui extends JFrame {
                 settings.saveWindowDimension( guiFrame);
             }
         });
+    }
+
+    private void buildGui() {
+
+        this.setTitle("Splitify");
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        makeSplitPanels();
+        makeTree();
+        makePreview();
+        makeOptions();
+        makeSaveButtons();
+        makeMisc();
+
         this.pack();
     }
 
