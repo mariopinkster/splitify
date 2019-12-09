@@ -60,9 +60,13 @@ public class SplitInfo implements Constants {
     }
 
     public String getFilePath() {
+        return getFileSegments() + ".yaml";
+    }
+
+    private String getFileSegments() {
         String result = this.dirSegment;
         if( parent != null) {
-            result = FilenameUtils.concat( parent.getFilePath(), dirSegment);
+            result = FilenameUtils.concat( parent.getFileSegments(), dirSegment);
         }
         return result;
     }
