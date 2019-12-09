@@ -1,12 +1,16 @@
 package nl.dimario.gui;
 
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -23,9 +27,12 @@ import nl.dimario.model.Mapper;
 import nl.dimario.model.Renderer;
 import nl.dimario.model.SplitInfo;
 
-public class TreeGui extends JFrame {
+public class TreeGui extends JFrame implements ItemListener {
 
     private static final int DISPLAYLENGTH = 52;
+    private static final String STOPSPLITTING = "stop splitting here";
+    private static final String ADDDEFCON = "add definition/config wrapper";
+
     private String fullFileName;
 
     JPanel pnlLeft;
@@ -35,6 +42,9 @@ public class TreeGui extends JFrame {
     JTextPane preview;
     private JLabel lblInput;
     private JLabel lblStatus;
+    private JCheckBox stop;
+    private JCheckBox defcon;
+
     private Renderer renderer;
 
     public TreeGui() {
@@ -83,8 +93,11 @@ public class TreeGui extends JFrame {
                 Object uo = selectedNode.getUserObject();
                 if( uo instanceof SplitInfo) {
                     try {
-                        String content = renderer.preview((SplitInfo) uo, true);
+                        SplitInfo splitInfo = (SplitInfo) uo;
+                        String content = renderer.preview(splitInfo, true);
                         preview.setText( content);
+                        defcon.setSelected( splitInfo.isAddDefCon());
+                        stop.setSelected( splitInfo.isStopSplit());
                     } catch( Exception x) {
                         preview.setText( "ERROR: " + x.getMessage());
                     }
@@ -101,8 +114,19 @@ public class TreeGui extends JFrame {
     }
 
     private void makeOptions() {
+
         JPanel pnlOptions = new JPanel();
+        pnlOptions.setLayout( new BoxLayout( pnlOptions,BoxLayout.Y_AXIS));
         pnlOptions.add( new JLabel( "options"));
+
+        stop = new JCheckBox( STOPSPLITTING);
+        stop.addItemListener( this);
+        pnlOptions.add( stop);
+
+        defcon = new JCheckBox( ADDDEFCON);
+        defcon.addItemListener(this);
+        pnlOptions.add( defcon);
+
         pnlRight.add( pnlOptions, BorderLayout.NORTH);
     }
 
@@ -153,6 +177,22 @@ public class TreeGui extends JFrame {
         Analyzer analyzer = new Analyzer();
         DefaultMutableTreeNode jroot = analyzer.makeJtree( rootNode);
         ((DefaultTreeModel)tree.getModel()).setRoot( jroot);
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent e)  {
+        Object o = e.getItem();
+        if( o instanceof JCheckBox) {
+            JCheckBox cb = (JCheckBox) o;
+            boolean value = cb.isSelected();
+            DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+            SplitInfo splitInfo = (SplitInfo) treeNode.getUserObject();
+            if( o == defcon) {
+                splitInfo.setAddDefCon( value);
+            } else if( o == stop) {
+                splitInfo.setStopSplit( value);
+            }
+        }
     }
 
     public static void main(String args[]) {

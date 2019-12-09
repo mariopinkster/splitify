@@ -13,6 +13,9 @@ public class SplitInfo implements Constants {
     private String dirSegment;
     private String nodeType;
     private JsonNode jsonNode;
+    private boolean addDefCon;
+    private boolean stopSplit;
+
     private List<SplitInfo> children;
     private SplitInfo parent;
 
@@ -94,4 +97,23 @@ public class SplitInfo implements Constants {
 
     public void setParent(SplitInfo parent) {
         this.parent = parent;
-    }}
+    }
+
+    public boolean isAddDefCon() {
+        return addDefCon;
+    }
+
+    public void setAddDefCon(boolean addDefCon) {
+        this.addDefCon = addDefCon;
+    }
+
+    public boolean isStopSplit() {
+        return stopSplit;
+    }
+
+    public void setStopSplit(boolean stopSplit) {
+        this.stopSplit = stopSplit;
+    }
+
+
+}
