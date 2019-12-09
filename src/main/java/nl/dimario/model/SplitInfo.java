@@ -49,7 +49,12 @@ public class SplitInfo implements Constants {
     public String getNodePath() {
         String result = this.nodeSegment;
         if( parent != null) {
-            result = FilenameUtils.concat( parent.getNodePath(), nodeSegment);
+            String parentSegment = parent.getNodePath();
+            String mySegment = this.nodeSegment;
+            if( mySegment.startsWith( "/")) {
+                mySegment = mySegment.substring( 1);
+            }
+            result = FilenameUtils.concat( parentSegment, mySegment);
         }
         return result;
     }
