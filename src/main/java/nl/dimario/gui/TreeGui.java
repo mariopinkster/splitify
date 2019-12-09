@@ -29,10 +29,6 @@ import nl.dimario.model.SplitInfo;
 
 public class TreeGui extends JFrame implements ItemListener {
 
-    private static final int DISPLAYLENGTH = 52;
-    private static final String SEPARATECHILDREN = "childnodes in separae files";
-    private static final String ADDDEFCON = "add definition/config nodes";
-
     private String fullFileName;
 
     JPanel pnlLeft;
@@ -44,7 +40,7 @@ public class TreeGui extends JFrame implements ItemListener {
     private JCheckBox separateChildren;
     private JCheckBox defcon;
     private JTextField dirsegment;
-
+    private JLabel outputFileName;
 
     private Renderer renderer;
 
@@ -95,17 +91,22 @@ public class TreeGui extends JFrame implements ItemListener {
     private void makeOptions() {
 
         JPanel pnlOptions = new JPanel();
-        pnlOptions.setLayout( new BoxLayout( pnlOptions,BoxLayout.Y_AXIS));
-        pnlOptions.add( new JLabel( "options"));
+        pnlOptions.setLayout( new BorderLayout());
 
-        separateChildren = new JCheckBox(SEPARATECHILDREN);
+        JPanel widgets = new JPanel();
+        widgets.setLayout( new GridLayout( 3, 2));
+
+        widgets.add( new JLabel( "childnodes in separate files"));
+        separateChildren = new JCheckBox();
         separateChildren.addItemListener( this);
-        pnlOptions.add(separateChildren);
+        widgets.add(separateChildren);
 
-        defcon = new JCheckBox( ADDDEFCON);
+        widgets.add( new JLabel( "add defnition/config nodes"));
+        defcon = new JCheckBox();
         defcon.addItemListener(this);
-        pnlOptions.add( defcon);
+        widgets.add( defcon);
 
+        widgets.add( new JLabel( "file path segment"));
         dirsegment = new JTextField();
         dirsegment.addFocusListener(new FocusListener() {
 
@@ -118,7 +119,13 @@ public class TreeGui extends JFrame implements ItemListener {
                 setModelFromDisplay();
              }
         });
-        pnlOptions.add(dirsegment);
+        widgets.add( dirsegment);
+
+        pnlOptions.add( widgets, BorderLayout.WEST);
+
+        outputFileName = new JLabel( "filenaam");
+        pnlOptions.add( outputFileName, BorderLayout.SOUTH);
+
 
         pnlRight.add(pnlOptions, BorderLayout.NORTH);
     }
@@ -194,6 +201,7 @@ public class TreeGui extends JFrame implements ItemListener {
         splitInfo.setAddDefCon( defcon.isSelected());
         String content = renderer.preview( splitInfo);
         preview.setText( content);
+        outputFileName.setText( splitInfo.getFilePath());
     }
 
     private void setDisplayFromModel() {
@@ -211,6 +219,7 @@ public class TreeGui extends JFrame implements ItemListener {
         defcon.setSelected( splitInfo.isAddDefCon());
         separateChildren.setSelected( splitInfo.isStopSplit());
         dirsegment.setText( splitInfo.getDirSegment());
+        outputFileName.setText( splitInfo.getFilePath());
     }
 
     @Override

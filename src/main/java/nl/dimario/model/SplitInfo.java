@@ -3,6 +3,8 @@ package nl.dimario.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 import nl.dimario.Constants;
@@ -47,7 +49,15 @@ public class SplitInfo implements Constants {
     public String getNodePath() {
         String result = this.nodeSegment;
         if( parent != null) {
-            result = parent.getNodePath() + nodeSegment;
+            result = FilenameUtils.concat( parent.getNodePath(), nodeSegment);
+        }
+        return result;
+    }
+
+    public String getFilePath() {
+        String result = this.dirSegment;
+        if( parent != null) {
+            result = FilenameUtils.concat( parent.getFilePath(), dirSegment);
         }
         return result;
     }
