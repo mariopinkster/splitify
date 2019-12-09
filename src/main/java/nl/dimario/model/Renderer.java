@@ -15,24 +15,40 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 
-public class Renderer {
+import nl.dimario.Constants;
 
-    public String preview( SplitInfo splitInfo, boolean stopRecursion) throws IOException {
+public class Renderer implements Constants  {
+
+    public String preview( SplitInfo splitInfo) {
 
         ObjectMapper mapper = Mapper.getMapper();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        SequenceWriter sw = mapper.writerWithDefaultPrettyPrinter().writeValues( bos);
-        ObjectNode wrapper = mapper.createObjectNode();
-        String nodePath = splitInfo.getNodePath();
+        try {
 
-        JsonNode renderThis = splitInfo.getJsonNode();
-        if( stopRecursion) {
-            renderThis = stripStructures( renderThis);
+            SequenceWriter sw = mapper.writerWithDefaultPrettyPrinter().writeValues( bos);
+            String nodePath = splitInfo.getNodePath();
+
+            JsonNode renderThis = splitInfo.getJsonNode();
+            if( splitInfo.isStopSplit()) {
+                renderThis = stripStructures( renderThis);
+            }
+
+            ObjectNode wrapper = mapper.createObjectNode();
+            if( splitInfo.isAddDefCon()) {
+                ObjectNode config = mapper.createObjectNode();
+                config.set( nodePath, renderThis);
+                ObjectNode definitions = mapper.createObjectNode();
+                definitions.set( CONFIG, config);
+                wrapper.set( DEFINITIONS, definitions);
+            } else {
+                wrapper.set( nodePath, renderThis);
+            }
+            sw.write(wrapper);
+            return postProcess(bos);
+
+        } catch (Exception x) {
+            return "ERROR: " + x.getMessage();
         }
-
-        wrapper.set( nodePath, renderThis);
-        sw.write( wrapper);
-        return postProcess(bos);
     }
 
     private String postProcess( ByteArrayOutputStream bos) throws IOException {

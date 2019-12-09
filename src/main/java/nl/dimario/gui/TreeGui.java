@@ -1,6 +1,8 @@
 package nl.dimario.gui;
 
 import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
@@ -9,18 +11,16 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.plaf.basic.BasicLabelUI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 
 import nl.dimario.model.Analyzer;
 import nl.dimario.model.Mapper;
@@ -30,8 +30,8 @@ import nl.dimario.model.SplitInfo;
 public class TreeGui extends JFrame implements ItemListener {
 
     private static final int DISPLAYLENGTH = 52;
-    private static final String STOPSPLITTING = "stop splitting here";
-    private static final String ADDDEFCON = "add definition/config wrapper";
+    private static final String SEPARATECHILDREN = "childnodes in separae files";
+    private static final String ADDDEFCON = "add definition/config nodes";
 
     private String fullFileName;
 
@@ -40,24 +40,16 @@ public class TreeGui extends JFrame implements ItemListener {
 
     private JTree tree;
     JTextPane preview;
-    private JLabel lblInput;
-    private JLabel lblStatus;
-    private JCheckBox stop;
+    private JLabel inputFileName;
+    private JCheckBox separateChildren;
     private JCheckBox defcon;
+    private JTextField dirsegment;
+
 
     private Renderer renderer;
 
     public TreeGui() {
         this.renderer = new Renderer();
-    }
-
-    private void displayInputFile() {
-        String display = fullFileName;
-        if( display.length() > DISPLAYLENGTH) {
-            int from = display.length() - DISPLAYLENGTH;
-            display = "..." +  display.substring( from);
-        }
-        lblInput.setText(display);
     }
 
     private void makeSplitPanels() {
@@ -85,23 +77,10 @@ public class TreeGui extends JFrame implements ItemListener {
                 return super.convertValueToText(value,selected,expanded,leaf,row,hasFocus);
             }
         };
-        // TODO en render preview moet nog een boolean in voor wel/geen recursie
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
-                DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-                Object uo = selectedNode.getUserObject();
-                if( uo instanceof SplitInfo) {
-                    try {
-                        SplitInfo splitInfo = (SplitInfo) uo;
-                        String content = renderer.preview(splitInfo, true);
-                        preview.setText( content);
-                        defcon.setSelected( splitInfo.isAddDefCon());
-                        stop.setSelected( splitInfo.isStopSplit());
-                    } catch( Exception x) {
-                        preview.setText( "ERROR: " + x.getMessage());
-                    }
-                }
+                setDisplayFromModel();
             }
         });
         pnlLeft.add(new JScrollPane(tree), BorderLayout.CENTER);
@@ -119,15 +98,29 @@ public class TreeGui extends JFrame implements ItemListener {
         pnlOptions.setLayout( new BoxLayout( pnlOptions,BoxLayout.Y_AXIS));
         pnlOptions.add( new JLabel( "options"));
 
-        stop = new JCheckBox( STOPSPLITTING);
-        stop.addItemListener( this);
-        pnlOptions.add( stop);
+        separateChildren = new JCheckBox(SEPARATECHILDREN);
+        separateChildren.addItemListener( this);
+        pnlOptions.add(separateChildren);
 
         defcon = new JCheckBox( ADDDEFCON);
         defcon.addItemListener(this);
         pnlOptions.add( defcon);
 
-        pnlRight.add( pnlOptions, BorderLayout.NORTH);
+        dirsegment = new JTextField();
+        dirsegment.addFocusListener(new FocusListener() {
+
+             @Override
+             public void focusGained(FocusEvent e) {
+             }
+
+             @Override
+             public void focusLost(FocusEvent e) {
+                setModelFromDisplay();
+             }
+        });
+        pnlOptions.add(dirsegment);
+
+        pnlRight.add(pnlOptions, BorderLayout.NORTH);
     }
 
     private void makeSaveButtons() {
@@ -137,10 +130,16 @@ public class TreeGui extends JFrame implements ItemListener {
     }
 
     private void makeMisc() {
-        lblStatus = new JLabel();
-        add( lblStatus, BorderLayout.SOUTH);
-        lblInput = new JLabel();
-        add( lblInput, BorderLayout.NORTH);
+
+        BasicLabelUI helperUI = new BasicLabelUI() {
+            @Override
+            protected String layoutCL(JLabel label, FontMetrics fontMetrics, String text, Icon icon, Rectangle viewR, Rectangle iconR, Rectangle textR) {
+                return StringUtils.reverse(super.layoutCL(label, fontMetrics, StringUtils.reverse(text), icon, viewR, iconR, textR));
+            }
+        };
+        inputFileName = new JLabel();
+        inputFileName.setUI( helperUI);
+        add(inputFileName, BorderLayout.NORTH);
 
         // On close save the current main window size and position
         final TreeGui guiFrame = this;
@@ -179,19 +178,46 @@ public class TreeGui extends JFrame implements ItemListener {
         ((DefaultTreeModel)tree.getModel()).setRoot( jroot);
     }
 
+    private void setModelFromDisplay() {
+        DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+        if( treeNode == null) {
+            return;
+        }
+        Object uo = treeNode.getUserObject();
+        if( ! (uo instanceof SplitInfo)) {
+            return;
+        }
+        SplitInfo splitInfo = (SplitInfo) treeNode.getUserObject();
+        String newDirsegment = dirsegment.getText();
+        splitInfo.setDirSegment( newDirsegment);
+        splitInfo.setStopSplit( separateChildren.isSelected());
+        splitInfo.setAddDefCon( defcon.isSelected());
+        String content = renderer.preview( splitInfo);
+        preview.setText( content);
+    }
+
+    private void setDisplayFromModel() {
+        DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+        if( treeNode == null) {
+            return;
+        }
+        Object uo = treeNode.getUserObject();
+        if( ! (uo instanceof SplitInfo)) {
+            return;
+        }
+        SplitInfo splitInfo = (SplitInfo) treeNode.getUserObject();
+        String content = renderer.preview( splitInfo);
+        preview.setText( content);
+        defcon.setSelected( splitInfo.isAddDefCon());
+        separateChildren.setSelected( splitInfo.isStopSplit());
+        dirsegment.setText( splitInfo.getDirSegment());
+    }
+
     @Override
-    public void itemStateChanged(ItemEvent e)  {
+    public void itemStateChanged(ItemEvent e) {
         Object o = e.getItem();
         if( o instanceof JCheckBox) {
-            JCheckBox cb = (JCheckBox) o;
-            boolean value = cb.isSelected();
-            DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-            SplitInfo splitInfo = (SplitInfo) treeNode.getUserObject();
-            if( o == defcon) {
-                splitInfo.setAddDefCon( value);
-            } else if( o == stop) {
-                splitInfo.setStopSplit( value);
-            }
+            setModelFromDisplay();
         }
     }
 
@@ -203,7 +229,7 @@ public class TreeGui extends JFrame implements ItemListener {
             if( args.length > 0) {
                 File inputFile = new File( args[0]);
                 gui.fullFileName = inputFile.getAbsolutePath();
-                gui.displayInputFile();
+                gui.inputFileName.setText( gui.fullFileName);
                 gui.loadTree();
             }
             GuiSettings settings = new GuiSettings();
