@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -13,8 +14,8 @@ public class FileWriter {
 
     private String baseDir;
 
-    public FileWriter(String baseDir) {
-        this.baseDir = baseDir;
+    public FileWriter( String fullFileName) {
+        this.baseDir = FilenameUtils.getFullPath( fullFileName);
     }
 
     public void writeOne( SplitInfo splitInfo, Renderer renderer) throws IOException {

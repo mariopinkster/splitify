@@ -48,6 +48,10 @@ public class Renderer implements Constants  {
         }
     }
 
+    /**
+     * Post process the output to remove the ideosyncrasies introduced by
+     * the Jackson JsonNode to text process.
+     */
     private String postProcess( ByteArrayOutputStream bos) throws IOException {
 
         String data = bos.toString( StandardCharsets.UTF_8);
@@ -55,6 +59,7 @@ public class Renderer implements Constants  {
         data = data.replace( "}]", "}']");
         data = data.replace( "'[", "[");
         data = data.replace( "]'", "]");
+        data = data.replace( "''", "'");
         return data;
 
 //        String filePath = PathTranslation.translatedFilePath( "output", getNodePath());

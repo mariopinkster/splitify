@@ -55,7 +55,7 @@ public class TreeGui extends JFrame implements ItemListener {
 
     public TreeGui() {
         this.renderer = new Renderer();
-        this.fileWriter = new FileWriter( "/home/mbp/x");
+        this.fileWriter = new FileWriter( "./splity-output");
 
         // this trick cuts off the label text at the left side if it is too long.
         this.cutoffLeft = new BasicLabelUI() {
@@ -197,6 +197,12 @@ public class TreeGui extends JFrame implements ItemListener {
         });
 
         JButton loadNew = new JButton( "load");
+        loadNew.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                treeGui.selectNewInput( loadNew);
+            }
+        });
 
         buttons.add( new JLabel( "save: "));
         buttons.add(saveThis);
@@ -241,20 +247,36 @@ public class TreeGui extends JFrame implements ItemListener {
         this.pack();
     }
 
-    private void loadTree() throws IOException {
+    private void selectNewInput( JButton button) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle( "Select input file");
+        chooser.setSelectedFile( new File( fullFileName));
+        chooser.setFileSelectionMode( JFileChooser.FILES_ONLY);
+        if( chooser.showOpenDialog( button) == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = chooser.getSelectedFile();
+            fullFileName = selectedFile.getAbsolutePath();
+            loadTree();
+        }
+    }
 
-        ObjectMapper mapper = Mapper.getMapper();
-        ObjectNode rootNode = (ObjectNode) mapper.readTree(
-                new File( fullFileName));
+    private void loadTree() {
+        try {
+            ObjectMapper mapper = Mapper.getMapper();
+            ObjectNode rootNode = (ObjectNode) mapper.readTree(
+                    new File(fullFileName));
 
-        Analyzer analyzer = new Analyzer();
-        DefaultMutableTreeNode jroot = analyzer.makeJtree( rootNode);
-        rootSplitInfo = (SplitInfo) jroot.getUserObject();
-        ((DefaultTreeModel)tree.getModel()).setRoot( jroot);
-        TreePath pathToRoot = new TreePath( jroot.getPath());
-        tree.setSelectionPath( pathToRoot);
-        tree.scrollPathToVisible(pathToRoot);
-        setDisplayFromModel();
+            Analyzer analyzer = new Analyzer();
+            DefaultMutableTreeNode jroot = analyzer.makeJtree(rootNode);
+            rootSplitInfo = (SplitInfo) jroot.getUserObject();
+            ((DefaultTreeModel) tree.getModel()).setRoot(jroot);
+            TreePath pathToRoot = new TreePath(jroot.getPath());
+            tree.setSelectionPath(pathToRoot);
+            tree.scrollPathToVisible(pathToRoot);
+            setDisplayFromModel();
+            this.fileWriter = new FileWriter( fullFileName);
+        } catch( Exception x) {
+            preview.setText( "ERROR: " + x.getMessage());
+        }
     }
 
     private void setModelFromDisplay() {
@@ -264,6 +286,7 @@ public class TreeGui extends JFrame implements ItemListener {
         updatingData = true;
         SplitInfo splitInfo = getCurrentSplitInfo();
         if( splitInfo == null) {
+            updatingData = false;
             return;
         }
         String newDirsegment = dirsegment.getText();
@@ -284,6 +307,7 @@ public class TreeGui extends JFrame implements ItemListener {
         updatingData = true;
         SplitInfo splitInfo = getCurrentSplitInfo();
         if( splitInfo  == null) {
+            updatingData = false;
             return;
         }
         String content = renderer.preview( splitInfo);
@@ -318,24 +342,20 @@ public class TreeGui extends JFrame implements ItemListener {
 
     public static void main(String args[]) {
 
-        try {
-            TreeGui gui = new TreeGui();
-            gui.buildGui();
-            if( args.length > 0) {
-                File inputFile = new File( args[0]);
-                gui.fullFileName = inputFile.getAbsolutePath();
-                gui.inputFileName.setText( gui.fullFileName);
-                gui.loadTree();
-            }
-            GuiSettings settings = new GuiSettings();
-            settings.loadWindowDimension( gui);
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    gui.setVisible(true);
-                }
-            });
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        TreeGui gui = new TreeGui();
+        gui.buildGui();
+        if( args.length > 0) {
+            File inputFile = new File( args[0]);
+            gui.fullFileName = inputFile.getAbsolutePath();
+            gui.inputFileName.setText( gui.fullFileName);
+            gui.loadTree();
         }
+        GuiSettings settings = new GuiSettings();
+        settings.loadWindowDimension( gui);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                gui.setVisible(true);
+            }
+        });
     }
 }

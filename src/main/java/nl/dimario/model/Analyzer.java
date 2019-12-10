@@ -55,6 +55,15 @@ public class Analyzer implements Constants {
         }
     }
 
+    /**
+     * NOTE preprocessing arrays turns them into String representations.
+     * Here, we add single quotes around the array elements (we presume
+     * that the array elements are simple strings).
+     * However, the Jackson library for unknown reasons converts those into
+     * TWO consecutive single quotes when rendering a JsonNode to text.
+     * For this reason,  we post-process the output in the Renderer to
+     * turn them back into ONE single quote.
+     */
     private ValueNode convertArray(ObjectMapper mapper, ArrayNode array) {
 
         StringBuilder sb = new StringBuilder();
