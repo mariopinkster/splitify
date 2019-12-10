@@ -26,9 +26,9 @@ public class SplitInfo implements Constants {
         this.nodeSegment = nodeSegment;
         int pos = nodeSegment.lastIndexOf(":");
         if( pos > -1) {
-            this.dirSegment = nodeSegment.substring( pos+1);
+            this.setDirSegment( nodeSegment.substring( pos+1));
         } else {
-            this.dirSegment = nodeSegment;
+            this.setDirSegment( nodeSegment);
         }
         JsonNode primaryTypeNode = jsonNode.get( PRIMARYTYPE);
         if( primaryTypeNode != null) {
@@ -51,10 +51,7 @@ public class SplitInfo implements Constants {
         if( parent != null) {
             String parentSegment = parent.getNodePath();
             String mySegment = this.nodeSegment;
-            if( mySegment.startsWith( "/")) {
-                mySegment = mySegment.substring( 1);
-            }
-            result = FilenameUtils.concat( parentSegment, mySegment);
+            result = parentSegment + mySegment;
         }
         return result;
     }
@@ -88,8 +85,12 @@ public class SplitInfo implements Constants {
     }
 
     public void setDirSegment(String dirSegment) {
+        if( dirSegment.startsWith( "/")) {
+            dirSegment =dirSegment.substring( 1);
+        }
         this.dirSegment = dirSegment;
     }
+
     public String getNodeType() {
         return nodeType;
     }

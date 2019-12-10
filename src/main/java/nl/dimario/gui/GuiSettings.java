@@ -16,9 +16,9 @@ public class GuiSettings implements Constants {
     static private final String HEIGHT = "window.height";
     static private final String WIDTH= "window.width";
 
-    private int left = 70;
+    private int left = 50;
     private int top = 50;
-    private int width = 421;
+    private int width = 523;
     private int height = 367;
 
     public void saveWindowDimension( JFrame frame) {

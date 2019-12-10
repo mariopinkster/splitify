@@ -57,6 +57,7 @@ public class TreeGui extends JFrame implements ItemListener {
     private void makeSplitPanels() {
         pnlLeft = new JPanel();
         pnlLeft.setLayout( new BorderLayout());
+        pnlLeft.setMinimumSize( new Dimension( 180, 100));
         pnlRight = new JPanel();
         pnlRight.setLayout( new BorderLayout());
         JSplitPane splitski = new JSplitPane( SwingConstants.VERTICAL, pnlLeft, pnlRight);
@@ -190,7 +191,6 @@ public class TreeGui extends JFrame implements ItemListener {
         buttons.add( new JLabel( "   "));
         buttons.add(quitski);
 
-
         pnlRight.add( buttons, BorderLayout.SOUTH);
     }
 
@@ -256,6 +256,7 @@ public class TreeGui extends JFrame implements ItemListener {
         splitInfo.setAddDefCon( defcon.isSelected());
         String content = renderer.preview( splitInfo);
         preview.setText( content);
+        preview.setCaretPosition( 0);
         outputFileName.setText( splitInfo.getFilePath());
     }
 
@@ -266,6 +267,7 @@ public class TreeGui extends JFrame implements ItemListener {
         }
         String content = renderer.preview( splitInfo);
         preview.setText( content);
+        preview.setCaretPosition( 0);
         defcon.setSelected( splitInfo.isAddDefCon());
         separateChildren.setSelected( splitInfo.isStopSplit());
         dirsegment.setText( splitInfo.getDirSegment());
