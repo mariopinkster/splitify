@@ -1,6 +1,8 @@
 package nl.dimario.gui;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
@@ -23,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import nl.dimario.model.Analyzer;
+import nl.dimario.model.FileWriter;
 import nl.dimario.model.Mapper;
 import nl.dimario.model.Renderer;
 import nl.dimario.model.SplitInfo;
@@ -43,9 +46,12 @@ public class TreeGui extends JFrame implements ItemListener {
     private JLabel outputFileName;
 
     private Renderer renderer;
+    private FileWriter fileWriter;
+    private SplitInfo rootSplitInfo;
 
     public TreeGui() {
         this.renderer = new Renderer();
+        this.fileWriter = new FileWriter( "/home/mbp/x");
     }
 
     private void makeSplitPanels() {
@@ -120,34 +126,77 @@ public class TreeGui extends JFrame implements ItemListener {
              }
         });
         widgets.add( dirsegment);
-
         pnlOptions.add( widgets, BorderLayout.WEST);
 
         outputFileName = new JLabel( "filenaam");
         pnlOptions.add( outputFileName, BorderLayout.SOUTH);
 
-
         pnlRight.add(pnlOptions, BorderLayout.NORTH);
     }
 
     private void makeButtons() {
+
+        final TreeGui treeGui = this;
         JPanel  buttons = new JPanel();
         buttons.setLayout( new FlowLayout(FlowLayout.CENTER));
 
-        JButton quitski = new JButton( "quit");
-        JButton thisPreview = new JButton( "save only this preview");
-        JButton saveAll = new JButton( "save all");
-        JButton loadNew = new JButton( "load new input file");
+        JButton quitski = new JButton( "exit");
+        quitski.addActionListener(new ActionListener() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                   treeGui.processWindowEvent(
+                        new WindowEvent( treeGui, WindowEvent.WINDOW_CLOSING));
+              }
+         });
 
-        buttons.add( quitski);
-        buttons.add( thisPreview );
+        JButton saveThis = new JButton( "this");
+        saveThis.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SplitInfo splitInfo = getCurrentSplitInfo();
+                if( splitInfo == null) {
+                    return;
+                }
+                try {
+                    fileWriter.writeOne(splitInfo, treeGui.renderer);
+                } catch (IOException x) {
+                    preview.setText( "ERROR: " + x.getMessage());
+                }
+            }
+        });
+
+        JButton saveAll = new JButton( "all");
+        saveAll.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if( rootSplitInfo == null) {
+                    return;
+                }
+                try {
+                    fileWriter.writeAll(rootSplitInfo, treeGui.renderer);
+                } catch (IOException x) {
+                    preview.setText( "ERROR: " + x.getMessage());
+                }
+            }
+        });
+
+        JButton loadNew = new JButton( "load");
+
+        buttons.add( new JLabel( "save: "));
+        buttons.add(saveThis);
         buttons.add( saveAll);
+        buttons.add( new JLabel( "   "));
         buttons.add( loadNew);
+        buttons.add( new JLabel( "   "));
+        buttons.add(quitski);
+
+
         pnlRight.add( buttons, BorderLayout.SOUTH);
     }
 
     private void makeMisc() {
 
+        // this trick cuts off the file name at the left side if it is too long.
         BasicLabelUI helperUI = new BasicLabelUI() {
             @Override
             protected String layoutCL(JLabel label, FontMetrics fontMetrics, String text, Icon icon, Rectangle viewR, Rectangle iconR, Rectangle textR) {
@@ -193,18 +242,14 @@ public class TreeGui extends JFrame implements ItemListener {
         Analyzer analyzer = new Analyzer();
         DefaultMutableTreeNode jroot = analyzer.makeJtree( rootNode);
         ((DefaultTreeModel)tree.getModel()).setRoot( jroot);
+        rootSplitInfo = (SplitInfo) jroot.getUserObject();
     }
 
     private void setModelFromDisplay() {
-        DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-        if( treeNode == null) {
+        SplitInfo splitInfo = getCurrentSplitInfo();
+        if( splitInfo == null) {
             return;
         }
-        Object uo = treeNode.getUserObject();
-        if( ! (uo instanceof SplitInfo)) {
-            return;
-        }
-        SplitInfo splitInfo = (SplitInfo) treeNode.getUserObject();
         String newDirsegment = dirsegment.getText();
         splitInfo.setDirSegment( newDirsegment);
         splitInfo.setStopSplit( separateChildren.isSelected());
@@ -215,21 +260,28 @@ public class TreeGui extends JFrame implements ItemListener {
     }
 
     private void setDisplayFromModel() {
-        DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-        if( treeNode == null) {
+        SplitInfo splitInfo = getCurrentSplitInfo();
+        if( splitInfo  == null) {
             return;
         }
-        Object uo = treeNode.getUserObject();
-        if( ! (uo instanceof SplitInfo)) {
-            return;
-        }
-        SplitInfo splitInfo = (SplitInfo) treeNode.getUserObject();
         String content = renderer.preview( splitInfo);
         preview.setText( content);
         defcon.setSelected( splitInfo.isAddDefCon());
         separateChildren.setSelected( splitInfo.isStopSplit());
         dirsegment.setText( splitInfo.getDirSegment());
         outputFileName.setText( splitInfo.getFilePath());
+    }
+
+    private SplitInfo getCurrentSplitInfo() {
+        DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+        if( treeNode == null) {
+            return null;
+        }
+        Object uo = treeNode.getUserObject();
+        if( ! (uo instanceof SplitInfo)) {
+            return null;
+        }
+        return (SplitInfo) uo;
     }
 
     @Override
