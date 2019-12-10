@@ -250,7 +250,9 @@ public class TreeGui extends JFrame implements ItemListener {
     private void selectNewInput( JButton button) {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle( "Select input file");
-        chooser.setSelectedFile( new File( fullFileName));
+        if( fullFileName != null) {
+            chooser.setSelectedFile(new File(fullFileName));
+        }
         chooser.setFileSelectionMode( JFileChooser.FILES_ONLY);
         if( chooser.showOpenDialog( button) == JFileChooser.APPROVE_OPTION) {
             File selectedFile = chooser.getSelectedFile();
@@ -264,7 +266,25 @@ public class TreeGui extends JFrame implements ItemListener {
             ObjectMapper mapper = Mapper.getMapper();
             ObjectNode rootNode = (ObjectNode) mapper.readTree(
                     new File(fullFileName));
+            loadTreeFromNode( rootNode);
+        } catch( Exception x) {
+            preview.setText( "ERROR: " + x.getMessage());
+        }
+    }
 
+    private void loadEmptyTree() {
+        String emptyFile = "/emptyFile:\n  no-data-loaded:empty\n";
+        try {
+            ObjectMapper mapper = Mapper.getMapper();
+            ObjectNode rootNode = (ObjectNode) mapper.readTree(
+                    emptyFile);
+            loadTreeFromNode( rootNode);
+        } catch( Exception x) {
+            preview.setText( "ERROR: " + x.getMessage());
+        }
+    }
+
+    private void loadTreeFromNode( ObjectNode rootNode) {
             Analyzer analyzer = new Analyzer();
             DefaultMutableTreeNode jroot = analyzer.makeJtree(rootNode);
             rootSplitInfo = (SplitInfo) jroot.getUserObject();
@@ -274,10 +294,8 @@ public class TreeGui extends JFrame implements ItemListener {
             tree.scrollPathToVisible(pathToRoot);
             setDisplayFromModel();
             this.fileWriter = new FileWriter( fullFileName);
-        } catch( Exception x) {
-            preview.setText( "ERROR: " + x.getMessage());
-        }
     }
+
 
     private void setModelFromDisplay() {
         if( updatingData) {
@@ -349,6 +367,8 @@ public class TreeGui extends JFrame implements ItemListener {
             gui.fullFileName = inputFile.getAbsolutePath();
             gui.inputFileName.setText( gui.fullFileName);
             gui.loadTree();
+        } else {
+            gui.loadEmptyTree();
         }
         GuiSettings settings = new GuiSettings();
         settings.loadWindowDimension( gui);
