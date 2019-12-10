@@ -14,6 +14,8 @@ import javax.swing.tree.TreeNode;
 
 public class Analyzer implements Constants {
 
+    private static final int STOPSPLITLEVEL = 3;
+
     private boolean addDefCon;
     private DefaultMutableTreeNode jRoot = null;
     private SplitInfo splitInfoRoot = null;
@@ -81,6 +83,7 @@ public class Analyzer implements Constants {
         preprocessArrays( rootNode, mapper);
         analyseJtreeRecurse( null, rootNode);
         linkSplitInfo( this.jRoot, this.splitInfoRoot);
+        setDefaults( this.splitInfoRoot, 0);
         return this.jRoot;
     }
 
@@ -96,7 +99,7 @@ public class Analyzer implements Constants {
             if( key.charAt(0) == '/') {
                 // Start new node then recurse
                 // Create split part info object and stuff it in new treenode
-                SplitInfo splitInfo = new SplitInfo( key, jsonNode);
+                SplitInfo splitInfo = new SplitInfo( key, value);
                 // Keep track of the root SplitInfo
                 if( splitInfoRoot == null) {
                     splitInfoRoot = splitInfo;
@@ -130,6 +133,17 @@ public class Analyzer implements Constants {
             SplitInfo childInfo = (SplitInfo) child.getUserObject();
             splitInfo.addChild( childInfo);
             linkSplitInfo( child, childInfo);
+        }
+    }
+
+    private void setDefaults( SplitInfo splitInfo, int level) {
+
+        splitInfo.setSeparateChildNodes( level < STOPSPLITLEVEL);
+        splitInfo.setAddDefCon( this.addDefCon);
+        if( splitInfo.getChildren() != null) {
+            for( SplitInfo child: splitInfo.getChildren()) {
+                setDefaults( child, level + 1);
+            }
         }
     }
 }

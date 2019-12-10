@@ -10,10 +10,7 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 
 import nl.dimario.Constants;
 
@@ -29,7 +26,7 @@ public class Renderer implements Constants  {
             String nodePath = splitInfo.getNodePath();
 
             JsonNode renderThis = splitInfo.getJsonNode();
-            if( splitInfo.isStopSplit()) {
+            if( splitInfo.isSeparateChildNodes()) {
                 renderThis = stripStructures( renderThis);
             }
 

@@ -16,7 +16,7 @@ public class SplitInfo implements Constants {
     private String nodeType;
     private JsonNode jsonNode;
     private boolean addDefCon;
-    private boolean stopSplit;
+    private boolean separateChildNodes;
 
     private List<SplitInfo> children;
     private SplitInfo parent;
@@ -24,12 +24,7 @@ public class SplitInfo implements Constants {
     public SplitInfo( String nodeSegment, JsonNode jsonNode) {
         this.jsonNode = jsonNode;
         this.nodeSegment = nodeSegment;
-        int pos = nodeSegment.lastIndexOf(":");
-        if( pos > -1) {
-            this.setDirSegment( nodeSegment.substring( pos+1));
-        } else {
-            this.setDirSegment( nodeSegment);
-        }
+        setDirSegment( nodeSegment);
         JsonNode primaryTypeNode = jsonNode.get( PRIMARYTYPE);
         if( primaryTypeNode != null) {
             this.setNodeType( primaryTypeNode.textValue());
@@ -85,10 +80,21 @@ public class SplitInfo implements Constants {
     }
 
     public void setDirSegment(String dirSegment) {
-        if( dirSegment.startsWith( "/")) {
-            dirSegment =dirSegment.substring( 1);
+
+        String[] segments = dirSegment.split( "/");
+        String setValue = "";
+        for( int i = 0; i < segments.length; i++) {
+            String thisSegment = segments[i];
+            if( thisSegment == null) {
+                continue;
+            }
+            int pos = thisSegment.lastIndexOf( ":");
+            if( pos > -1) {
+                thisSegment = thisSegment.substring( pos+1);
+            }
+            setValue = FilenameUtils.concat( setValue, thisSegment);
         }
-        this.dirSegment = dirSegment;
+        this.dirSegment = setValue;
     }
 
     public String getNodeType() {
@@ -127,13 +133,11 @@ public class SplitInfo implements Constants {
         this.addDefCon = addDefCon;
     }
 
-    public boolean isStopSplit() {
-        return stopSplit;
+    public boolean isSeparateChildNodes() {
+        return separateChildNodes;
     }
 
-    public void setStopSplit(boolean stopSplit) {
-        this.stopSplit = stopSplit;
+    public void setSeparateChildNodes(boolean separateChildNodes) {
+        this.separateChildNodes = separateChildNodes;
     }
-
-
 }

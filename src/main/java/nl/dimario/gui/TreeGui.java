@@ -18,6 +18,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.plaf.basic.BasicLabelUI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -44,14 +45,25 @@ public class TreeGui extends JFrame implements ItemListener {
     private JCheckBox defcon;
     private JTextField dirsegment;
     private JLabel outputFileName;
+    private BasicLabelUI cutoffLeft;
 
     private Renderer renderer;
     private FileWriter fileWriter;
     private SplitInfo rootSplitInfo;
 
+    private boolean updatingData = false;
+
     public TreeGui() {
         this.renderer = new Renderer();
         this.fileWriter = new FileWriter( "/home/mbp/x");
+
+        // this trick cuts off the label text at the left side if it is too long.
+        this.cutoffLeft = new BasicLabelUI() {
+            @Override
+            protected String layoutCL(JLabel label, FontMetrics fontMetrics, String text, Icon icon, Rectangle viewR, Rectangle iconR, Rectangle textR) {
+                return StringUtils.reverse(super.layoutCL(label, fontMetrics, StringUtils.reverse(text), icon, viewR, iconR, textR));
+            }
+        };
     }
 
     private void makeSplitPanels() {
@@ -101,7 +113,7 @@ public class TreeGui extends JFrame implements ItemListener {
         pnlOptions.setLayout( new BorderLayout());
 
         JPanel widgets = new JPanel();
-        widgets.setLayout( new GridLayout( 3, 2));
+        widgets.setLayout( new GridLayout( 4, 2));
 
         widgets.add( new JLabel( "childnodes in separate files"));
         separateChildren = new JCheckBox();
@@ -114,7 +126,7 @@ public class TreeGui extends JFrame implements ItemListener {
         widgets.add( defcon);
 
         widgets.add( new JLabel( "file path segment"));
-        dirsegment = new JTextField();
+        dirsegment = new JTextField( "(directory)", 15);
         dirsegment.addFocusListener(new FocusListener() {
 
              @Override
@@ -127,10 +139,13 @@ public class TreeGui extends JFrame implements ItemListener {
              }
         });
         widgets.add( dirsegment);
-        pnlOptions.add( widgets, BorderLayout.WEST);
 
-        outputFileName = new JLabel( "filenaam");
-        pnlOptions.add( outputFileName, BorderLayout.SOUTH);
+        widgets.add( new JLabel( "output file"));
+        outputFileName = new JLabel( "(filename goes here)");
+        outputFileName.setUI( cutoffLeft);
+        widgets.add( outputFileName);
+
+        pnlOptions.add( widgets, BorderLayout.CENTER);
 
         pnlRight.add(pnlOptions, BorderLayout.NORTH);
     }
@@ -196,15 +211,8 @@ public class TreeGui extends JFrame implements ItemListener {
 
     private void makeMisc() {
 
-        // this trick cuts off the file name at the left side if it is too long.
-        BasicLabelUI helperUI = new BasicLabelUI() {
-            @Override
-            protected String layoutCL(JLabel label, FontMetrics fontMetrics, String text, Icon icon, Rectangle viewR, Rectangle iconR, Rectangle textR) {
-                return StringUtils.reverse(super.layoutCL(label, fontMetrics, StringUtils.reverse(text), icon, viewR, iconR, textR));
-            }
-        };
         inputFileName = new JLabel();
-        inputFileName.setUI( helperUI);
+        inputFileName.setUI( cutoffLeft);
         add(inputFileName, BorderLayout.NORTH);
 
         // On close save the current main window size and position
@@ -241,26 +249,39 @@ public class TreeGui extends JFrame implements ItemListener {
 
         Analyzer analyzer = new Analyzer();
         DefaultMutableTreeNode jroot = analyzer.makeJtree( rootNode);
-        ((DefaultTreeModel)tree.getModel()).setRoot( jroot);
         rootSplitInfo = (SplitInfo) jroot.getUserObject();
+        ((DefaultTreeModel)tree.getModel()).setRoot( jroot);
+        TreePath pathToRoot = new TreePath( jroot.getPath());
+        tree.setSelectionPath( pathToRoot);
+        tree.scrollPathToVisible(pathToRoot);
+        setDisplayFromModel();
     }
 
     private void setModelFromDisplay() {
+        if( updatingData) {
+            return;
+        }
+        updatingData = true;
         SplitInfo splitInfo = getCurrentSplitInfo();
         if( splitInfo == null) {
             return;
         }
         String newDirsegment = dirsegment.getText();
         splitInfo.setDirSegment( newDirsegment);
-        splitInfo.setStopSplit( separateChildren.isSelected());
+        splitInfo.setSeparateChildNodes( separateChildren.isSelected());
         splitInfo.setAddDefCon( defcon.isSelected());
         String content = renderer.preview( splitInfo);
         preview.setText( content);
         preview.setCaretPosition( 0);
-        outputFileName.setText( splitInfo.getFilePath());
+        outputFileName.setText(splitInfo.getFilePath());
+        updatingData = false;
     }
 
     private void setDisplayFromModel() {
+        if( updatingData) {
+            return;
+        }
+        updatingData = true;
         SplitInfo splitInfo = getCurrentSplitInfo();
         if( splitInfo  == null) {
             return;
@@ -269,9 +290,10 @@ public class TreeGui extends JFrame implements ItemListener {
         preview.setText( content);
         preview.setCaretPosition( 0);
         defcon.setSelected( splitInfo.isAddDefCon());
-        separateChildren.setSelected( splitInfo.isStopSplit());
+        separateChildren.setSelected( splitInfo.isSeparateChildNodes());
         dirsegment.setText( splitInfo.getDirSegment());
-        outputFileName.setText( splitInfo.getFilePath());
+        outputFileName.setText(splitInfo.getFilePath());
+        updatingData = false;
     }
 
     private SplitInfo getCurrentSplitInfo() {
