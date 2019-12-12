@@ -1,7 +1,7 @@
-####What does it do?
+##What does it do?
 It splits up a single ***.yaml** file into multiple parts. The files holding the lower level information are placed in a structure of subdirectories.
 
-####How do I start it?
+##How do I start it?
 You can start the application from the command line with 
 
 	  java -jar splitify.jar
@@ -20,7 +20,7 @@ Note: the app was compiled for Java 8. You can build in the usual way with Maven
 
 Maven is set up to create a "fat" jar, meaning that it will inculde all the necessary Java libraries in the artifact.
 
-####How does it work?
+##How does it work?
 The tree in the left pane shows a schematic representation of the contents of the input file. When you select a node in this tree the preview pane at the  right will show the content as it would be written to file.
 
 You can influence the content with the checkboxes in the option pane above th text of the preview.
@@ -43,13 +43,13 @@ The above options are retained separately for each node in the tree, but they ar
 - Splitting up children is set for nodes at the first and second level  in the tree.
 - The directory name is derived from the node path by stripping all text before a colon (if present). If the node path has multiple segments, this is done separately for each segment.
 
-####How and where is the output saved?
+##How and where is the output saved?
 There are two **save**  buttons. You can choose to save only the file for the node that is currently selected (the content of the preview pane will be written to the file path shown in the options pane).
 Or you can choose to save everything. In that case the save operation is performed for all nodes, starting at the root and descending recursively as indicated by the "separate children" checkbox for each node.
 
 The directory structure for the output is created in the same directory that holds the input file, so that the input file is effectively split up in place.
 
-####Can I  integrate it in IntelliJ?
+##Can I  integrate it in IntelliJ?
 Yes. Choose **File->settings->Tools->External Tools**, then use the **+** to add a new tool definition. In the dialog, enter these settings:
 - **Name** splitify
 - **Description** Split YAML
