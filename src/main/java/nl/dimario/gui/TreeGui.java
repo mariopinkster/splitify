@@ -104,6 +104,10 @@ public class TreeGui extends JFrame implements ItemListener {
     private void makePreview() {
         preview = new JTextPane();
         preview.setText( "(preview)");
+
+        Font font = new Font("monospaced", Font.TRUETYPE_FONT, 14);
+        preview.setFont(font);
+
         pnlRight.add( new JScrollPane(preview), BorderLayout.CENTER);
     }
 
