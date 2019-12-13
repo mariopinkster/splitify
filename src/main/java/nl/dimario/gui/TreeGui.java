@@ -289,9 +289,18 @@ public class TreeGui extends JFrame implements ItemListener {
             DefaultMutableTreeNode jroot = analyzer.makeJtree(rootNode);
             rootSplitInfo = (SplitInfo) jroot.getUserObject();
             ((DefaultTreeModel) tree.getModel()).setRoot(jroot);
-            TreePath pathToRoot = new TreePath(jroot.getPath());
-            tree.setSelectionPath(pathToRoot);
-            tree.scrollPathToVisible(pathToRoot);
+            TreePath pathToVisible = null;
+            DefaultMutableTreeNode visible = (DefaultMutableTreeNode) jroot.getFirstChild();
+            if( visible != null) {
+                pathToVisible = new TreePath(visible.getPath());
+                visible = (DefaultMutableTreeNode) visible.getFirstChild();
+                if( visible != null) {
+                    pathToVisible = new TreePath(visible.getPath());
+                }
+            }
+            tree.setSelectionPath(pathToVisible);
+            tree.scrollPathToVisible(pathToVisible);
+            tree.setRootVisible( false);
             setDisplayFromModel();
             this.fileWriter = new FileWriter( fullFileName);
     }

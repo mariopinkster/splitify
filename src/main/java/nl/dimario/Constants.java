@@ -2,6 +2,7 @@ package nl.dimario;
 
 public interface Constants {
 
+    static final String DOCUMENTROOT = "/documentroot";
     static final String DEFINITIONS = "definitions";
     static final String CONFIG = "config";
     static final String PRIMARYTYPE =  "jcr:primaryType";

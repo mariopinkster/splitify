@@ -3,6 +3,7 @@ package nl.dimario.model;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 
 import nl.dimario.Constants;
@@ -17,7 +18,7 @@ public class Analyzer implements Constants {
     private static final int STOPSPLITLEVEL = 3;
 
     private boolean addDefCon;
-    private DefaultMutableTreeNode jRoot = null;
+    private DefaultMutableTreeNode treeRoot = null;
     private SplitInfo splitInfoRoot = null;
 
     public Analyzer() {
@@ -86,14 +87,21 @@ public class Analyzer implements Constants {
     }
 
 
-    public DefaultMutableTreeNode makeJtree( JsonNode rootNode) {
-        rootNode = stripDefinitionsConfig( rootNode);
+    public DefaultMutableTreeNode makeJtree( JsonNode documentNode) {
+
         ObjectMapper mapper = Mapper.getMapper();
-        preprocessArrays( rootNode, mapper);
-        analyseJtreeRecurse( null, rootNode);
-        linkSplitInfo( this.jRoot, this.splitInfoRoot);
+
+        // Convert mixin arrays to String representation
+        preprocessArrays( documentNode, mapper);
+
+        // Add invisible root wrapper while stripping definitions/configuration nodes
+        JsonNode firstNode = stripDefinitionsConfig( documentNode);
+        ObjectNode wrapper = mapper.createObjectNode();
+        wrapper.set( DOCUMENTROOT, firstNode);
+        analyseJtreeRecurse( null, wrapper);
+        linkSplitInfo( this.treeRoot, this.splitInfoRoot);
         setDefaults( this.splitInfoRoot, 0);
-        return this.jRoot;
+        return this.treeRoot;
     }
 
     private void analyseJtreeRecurse( DefaultMutableTreeNode treeNode, JsonNode jsonNode) {
@@ -115,8 +123,8 @@ public class Analyzer implements Constants {
                 }
                 DefaultMutableTreeNode childNode;
                 if (treeNode == null) {
-                    jRoot = new DefaultMutableTreeNode(key);
-                    childNode = jRoot;
+                    treeRoot = new DefaultMutableTreeNode(key);
+                    childNode = treeRoot;
                 } else {
                     childNode = new DefaultMutableTreeNode(key);
                     treeNode.add(childNode);

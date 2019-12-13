@@ -43,6 +43,9 @@ public class SplitInfo implements Constants {
 
     public String getNodePath() {
         String result = this.nodeSegment;
+        if( DOCUMENTROOT.equals( this.nodeSegment)) {
+            result = "";
+        }
         if( parent != null) {
             String parentSegment = parent.getNodePath();
             String mySegment = this.nodeSegment;
@@ -81,6 +84,10 @@ public class SplitInfo implements Constants {
 
     public void setDirSegment(String dirSegment) {
 
+        if( DOCUMENTROOT.equals( dirSegment)) {
+            this.dirSegment = "";
+            return;
+        }
         String[] segments = dirSegment.split( "/");
         String setValue = "";
         for( int i = 0; i < segments.length; i++) {
