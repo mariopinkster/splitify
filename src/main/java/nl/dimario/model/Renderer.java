@@ -41,7 +41,8 @@ public class Renderer implements Constants  {
                 wrapper.set( nodePath, renderThis);
             }
             sw.write(wrapper);
-            return postProcess(bos);
+            String data = bos.toString( StandardCharsets.UTF_8);
+            return postProcess( data);
 
         } catch (Exception x) {
             return "ERROR: " + x.getMessage();
@@ -52,26 +53,17 @@ public class Renderer implements Constants  {
      * Post process the output to remove the ideosyncrasies introduced by
      * the Jackson JsonNode to text process.
      */
-    private String postProcess( ByteArrayOutputStream bos) throws IOException {
+    protected String postProcess( String data) {
 
-        String data = bos.toString( StandardCharsets.UTF_8);
         data = data.replace( "[${", "['${");
         data = data.replace( "}]", "}']");
         data = data.replace( "'[", "[");
         data = data.replace( "]'", "]");
         data = data.replace( "''", "'");
         return data;
-
-//        String filePath = PathTranslation.translatedFilePath( "output", getNodePath());
-//        filePath  = filePath + ".yaml";
-//        String outDir = FilenameUtils.getFullPathNoEndSeparator(filePath);
-//        (new File(outDir)).mkdirs();
-//        try( FileOutputStream fos = new FileOutputStream( new File( filePath))) {
-//            IOUtils.write( data, fos, StandardCharsets.UTF_8);
-//        }
     }
 
-    private ObjectNode stripStructures(JsonNode node) {
+    protected ObjectNode stripStructures(JsonNode node) {
 
         ObjectNode result = Mapper.getMapper().createObjectNode();
         Iterator<Map.Entry<String,JsonNode>> fields = node.fields();
