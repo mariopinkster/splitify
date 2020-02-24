@@ -139,7 +139,7 @@ public class TreeGui extends JFrame implements ItemListener {
         separateChildren.addItemListener( this);
         widgets.add(separateChildren);
 
-        widgets.add( new JLabel( "add defnition/config nodes"));
+        widgets.add( new JLabel( "add definition/config nodes"));
         defcon = new JCheckBox();
         defcon.addItemListener(this);
         widgets.add( defcon);
