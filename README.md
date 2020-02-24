@@ -1,7 +1,15 @@
 #### What does it do?
-It splits up a single ***.yaml** file into multiple parts. The files holding the lower level information are placed in a structure of subdirectories.
+It splits up a single ***.yaml** file into multiple parts. The files holding the lower level information are placed in a structure of subdirectories. It works interactively, you get a GUI that lets you control what goes where.
 
-#### How do I start it?
+#### How do I build it?
+You can build in the usual way with Maven:
+
+	mvn clean package
+
+Maven is set up to create a "fat" jar, meaning that it will inculde all the necessary Java libraries in the artifact.
+Note: the utility was developed using Java 8. It also compiles and runs in Java 11.
+
+#### How do I run it?
 You can start the application from the command line with 
 
 	  java -jar splitify.jar
@@ -14,11 +22,6 @@ Alternatively you can place the name of the input file on the command line:
 
 This will load the input file at program startup.
 
-Note: the app was compiled for Java 8. You can build in the usual way with Maven:
-
-	mvn clean package
-
-Maven is set up to create a "fat" jar, meaning that it will inculde all the necessary Java libraries in the artifact.
 
 #### How does it work?
 The tree in the left pane shows a schematic representation of the contents of the input file. When you select a node in this tree the preview pane at the  right will show the content as it would be written to file.
@@ -47,7 +50,7 @@ The above options are retained separately for each node in the tree, but they ar
 There are two **save**  buttons. You can choose to save only the file for the node that is currently selected (the content of the preview pane will be written to the file path shown in the options pane).
 Or you can choose to save everything. In that case the save operation is performed for all nodes, starting at the root and descending recursively as indicated by the "separate children" checkbox for each node.
 
-The directory structure for the output is created in the same directory that holds the input file, so that the input file is effectively split up in place.
+The directory structure for the output is created in the same directory that holds the input file, so that the input file is effectively split up in place. However, due to the coupling between the node path of the output and the location in the subdirectory structure, you will probably get a bunch of empty subdirectories before the actual output files are written out.
 
 #### Can I  integrate it in IntelliJ?
 Yes. Choose **File->settings->Tools->External Tools**, then use the **+** to add a new tool definition. In the dialog, enter these settings:
