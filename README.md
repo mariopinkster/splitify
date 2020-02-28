@@ -26,7 +26,7 @@ This will load the input file at program startup.
 #### How does it work?
 The tree in the left pane shows a schematic representation of the contents of the input file. When you select a node in this tree the preview pane at the  right will show the content as it would be written to file.
 
-You can influence the content with the checkboxes in the option pane above th text of the preview.
+You can influence the content with the checkboxes in the option pane above the text of the preview.
 
 The checkbox **add definitions/config nodes** controls wether  the content will be wrapped in a
 
@@ -35,10 +35,10 @@ The checkbox **add definitions/config nodes** controls wether  the content will 
 
 structure or not. You can see the effect immediately in the preview.
 
-The checkbox "childnodes in separate files" controls wether the childnodes for this node will be included in the file for the current node or not. If not, each child will be placed in its own, separate file and a directory for it (and its descendants) will
+The checkbox **childnodes in separate files** controls wether the childnodes for this node will be included in the file for the current node or not. If not, each child will be placed in its own, separate file and a directory for it (and its descendants) will
 be created when the childnode is saved. By toggling this checkbox you can see the content in the preview pane change immediately.
 
-The editable field for the file path segment name lets you change the name of the subdirectory where the childnodes will be saved. This value does not influence the content on the files, it is meant to let you control the names of the files and directories.
+The editable field for the file **path segment** name lets you change the name of the subdirectory where the childnodes will be saved. This value does not influence the content of the files, it is meant to let you control the names of the files and directories.
 
 The above options are retained separately for each node in the tree, but they are not saved on program exit. However, the program provides sensible defaults which are set when an input file is loaded:
 
