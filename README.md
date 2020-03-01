@@ -22,6 +22,19 @@ Alternatively you can place the name of the input file on the command line:
 
 This will load the input file at program startup.
 
+#### The text is too small to read, what gives?
+Java Swing and Windows do not work very well together in some cases, see for example
+
+   https://superuser.com/questions/652606/is-there-a-way-to-increase-the-default-font-size-for-java-gui-applications
+
+The basic problem seems to be that Swing *thinks* it is using point size, by Windows *thinks* it is using pixel size.
+In particular on high res displays that are not very large this may lead to unreadable small font size.
+
+You can tell Swing to use other font sizes by adding VM args to the command line:
+
+    java -Dswing.aatext=true -Dswing.plaf.metal.controlFont=Tahoma-plain-18 -Dswing.plaf.metal.userFont=Tahoma-plain-18 -jar  splitify.jar
+
+This will change the font size of menus and other screen element to 18 point.
 
 #### How does it work?
 The tree in the left pane shows a schematic representation of the contents of the input file. When you select a node in this tree the preview pane at the  right will show the content as it would be written to file.

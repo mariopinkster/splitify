@@ -70,7 +70,7 @@ public class TreeGui extends JFrame implements ItemListener {
 
     public TreeGui() {
         this.renderer = new Renderer();
-        this.fileWriter = new FileWriter( "./splity-output");
+        this.fileWriter = new FileWriter( "./splitify-output");
 
         // this trick cuts off the label text at the left side if it is too long.
         this.cutoffLeft = new BasicLabelUI() {
@@ -120,6 +120,7 @@ public class TreeGui extends JFrame implements ItemListener {
         preview = new JTextPane();
         preview.setText( "(preview)");
 
+        // NOTE : On Windows you may want to fiddle with this font and size.
         Font font = new Font("monospaced", Font.TRUETYPE_FONT, 14);
         preview.setFont(font);
 
