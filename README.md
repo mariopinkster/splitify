@@ -6,7 +6,8 @@ You can build in the usual way with Maven:
 
 	mvn clean package
 
-Maven is set up to create a "fat" jar, meaning that it will inculde all the necessary Java libraries in the artifact.
+The pom is set up to create a "fat" jar, meaning that it will include all the necessary Java libraries in the artifact.
+
 Note: the utility was developed using Java 8. It also compiles and runs in Java 11.
 
 #### How do I run it?
@@ -14,9 +15,9 @@ You can start the application from the command line with
 
 	  java -jar splitify.jar
 
-(the name of the actual jar file may be different due to information that Maven adds to the filename). This opens up the main window from where you can load an input file and write output files.
+**splitify.jar** is the fat jar. It lives in the target directory. 
 
-Alternatively you can place the name of the input file on the command line:
+This opens up the main window from where you can load an input file and write output files. Alternatively you can place the name of the input file on the command line:
 
 	  java -jar splitify.jar input.yaml
 
@@ -30,11 +31,14 @@ Java Swing and Windows do not work very well together in some cases, see for exa
 The basic problem seems to be that Swing *thinks* it is using point size, but Windows *thinks* it is using pixel size.
 In particular on high res displays that are not very large this may lead to unreadable small font size.
 
-You can tell Swing to use other font sizes by adding VM args to the command line:
+You can tell Swing to use specific fonts and sizes by adding VM args to the command line:
 
     java -Dswing.aatext=true -Dswing.plaf.metal.controlFont=Tahoma-plain-18 -Dswing.plaf.metal.userFont=Tahoma-plain-18 -jar  splitify.jar
 
-This will change the font size of menus and other screen element to 18 point.
+This will change the font to Tahoma and the size of text in menus and other screen element to 18 (point? pixel? I would not know.) If the text in the preview pane is too small you'll have to change its size in the source code, in 
+
+     TreeGui.makePreview()
+
 
 #### How does it work?
 The tree in the left pane shows a schematic representation of the contents of the input file. When you select a node in this tree the preview pane at the  right will show the content as it would be written to file.
