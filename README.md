@@ -27,7 +27,7 @@ Java Swing and Windows do not work very well together in some cases, see for exa
 
    https://superuser.com/questions/652606/is-there-a-way-to-increase-the-default-font-size-for-java-gui-applications
 
-The basic problem seems to be that Swing *thinks* it is using point size, by Windows *thinks* it is using pixel size.
+The basic problem seems to be that Swing *thinks* it is using point size, but Windows *thinks* it is using pixel size.
 In particular on high res displays that are not very large this may lead to unreadable small font size.
 
 You can tell Swing to use other font sizes by adding VM args to the command line:

@@ -89,6 +89,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>${maven.assembly.version}</version>
                 <configuration>
+                    <finalName>splitify</finalName>
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
@@ -100,6 +101,7 @@
                             jar-with-dependencies
                         </descriptorRef>
                     </descriptorRefs>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
