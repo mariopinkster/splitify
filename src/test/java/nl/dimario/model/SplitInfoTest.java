@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import javax.swing.plaf.SliderUI;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,11 +39,11 @@ public class SplitInfoTest {
     private static String DIRSEGMENT ="directory";
     private static String TESTNODETYPE = "hippo:excavator";
 
-
     private ObjectMapper mapper;
 
     @Before
     public void setup() {
+
         this.mapper = Mapper.getMapper();
     }
 
@@ -78,7 +79,11 @@ public class SplitInfoTest {
         assertEquals( "", test.getDirSegment());
 
         test.setDirSegment( "/abc:first/def:second/third/xyz:fourth");
-        assertEquals( "first/second/third/fourth", test.getDirSegment());
+        if (SystemUtils.IS_OS_WINDOWS) {
+            assertEquals("first\\second\\third\\fourth", test.getDirSegment());
+        } else {
+            assertEquals("first/second/third/fourth", test.getDirSegment());
+        }
     }
 
     @Test
@@ -113,20 +118,24 @@ public class SplitInfoTest {
     public void testNodeAndFilePath() {
 
         JsonNode jsonRoot = mapper.createObjectNode();
-        SplitInfo root = new SplitInfo( Constants.DOCUMENTROOT, jsonRoot);
-        createTree( root, 3);
+        SplitInfo root = new SplitInfo(Constants.DOCUMENTROOT, jsonRoot);
+        createTree(root, 3);
 
         String rootFilePath = root.getFilePath();
-        assertEquals( ".yaml", rootFilePath);
+        assertEquals(".yaml", rootFilePath);
 
         // Test Random elements
         SplitInfo si_2 = root.getChildren().get(2);
-        assertEquals( "/3:2-3", si_2.getNodePath());
-        assertEquals( "2-3.yaml", si_2.getFilePath());
+        assertEquals("/3:2-3", si_2.getNodePath());
+        assertEquals("2-3.yaml", si_2.getFilePath());
 
         SplitInfo si_1 = root.getChildren().get(1);
         SplitInfo si_1_0 = si_1.getChildren().get(0);
         assertEquals( "/3:1-3/2:0-2", si_1_0.getNodePath());
-        assertEquals( "1-3/0-2.yaml", si_1_0.getFilePath());
+        if (SystemUtils.IS_OS_WINDOWS) {
+            assertEquals( "1-3\\0-2.yaml", si_1_0.getFilePath());
+        } else {
+            assertEquals("1-3/0-2.yaml", si_1_0.getFilePath());
+        }
     }
 }
