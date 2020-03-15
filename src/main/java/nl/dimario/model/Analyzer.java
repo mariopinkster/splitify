@@ -171,7 +171,7 @@ public class Analyzer implements Constants {
     }
 
     private void setDefaults( SplitInfo root) {
-        WizardUtil.clearSeparateChildNodes( root);
+        WizardUtil.setSeparateChildNodes( root, false);
         WizardUtil.setSeparateChildNodesByLevel( root, 0, STOPSPLITLEVEL);
         WizardUtil.setAddDefcon( root, this.addDefCon);
     }

@@ -69,7 +69,7 @@ public class SettingsWizard extends JDialog {
         doit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                applySettings();
             }
         });
 
@@ -125,11 +125,11 @@ public class SettingsWizard extends JDialog {
     private void applySettings() {
         if( radioByDepth.isSelected()) {
             int depth = Integer.parseInt( (String)whatDepth.getSelectedItem());
-            WizardUtil.clearSeparateChildNodes( this.root);
+            WizardUtil.setSeparateChildNodes( this.root, false);
             WizardUtil.setSeparateChildNodesByLevel( this.root, 0, depth);
         } else if( radioByType.isSelected()) {
             String nodeType = (String) whatType.getSelectedItem();
-            WizardUtil.clearSeparateChildNodes( this.root);
+            WizardUtil.setSeparateChildNodes( this.root, false);
             WizardUtil.setSeparateChildNodesByType( this.root, nodeType);
         }
     }

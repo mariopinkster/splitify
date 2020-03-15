@@ -24,12 +24,12 @@ import java.util.*;
 
 public class WizardUtil {
 
-    public static void clearSeparateChildNodes(SplitInfo root) {
+    public static void setSeparateChildNodes(SplitInfo root, boolean newValue) {
 
-        root.setSeparateChildNodes(true);
+        root.setSeparateChildNodes( newValue);
         if (root.getChildren() != null) {
             for (SplitInfo child : root.getChildren()) {
-                clearSeparateChildNodes(child);
+                setSeparateChildNodes(child, newValue);
             }
         }
     }
