@@ -117,7 +117,7 @@ public class Analyzer implements Constants {
         wrapper.set( DOCUMENTROOT, firstNode);
         analyseJtreeRecurse( null, wrapper);
         linkSplitInfo( this.treeRoot, this.splitInfoRoot);
-        setDefaults( this.splitInfoRoot, 0);
+        setDefaults( this.splitInfoRoot);
         return this.treeRoot;
     }
 
@@ -170,14 +170,9 @@ public class Analyzer implements Constants {
         }
     }
 
-    private void setDefaults( SplitInfo splitInfo, int level) {
-
-        splitInfo.setSeparateChildNodes( level < STOPSPLITLEVEL);
-        splitInfo.setAddDefCon( this.addDefCon);
-        if( splitInfo.getChildren() != null) {
-            for( SplitInfo child: splitInfo.getChildren()) {
-                setDefaults( child, level + 1);
-            }
-        }
+    private void setDefaults( SplitInfo root) {
+        WizardUtil.clearSeparateChildNodes( root);
+        WizardUtil.setSeparateChildNodesByLevel( root, 0, STOPSPLITLEVEL);
+        WizardUtil.setAddDefcon( root, this.addDefCon);
     }
 }

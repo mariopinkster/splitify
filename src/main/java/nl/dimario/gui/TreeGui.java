@@ -180,7 +180,10 @@ public class TreeGui extends JFrame implements ItemListener {
         wizard.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SettingsWizard dialog = new SettingsWizard();
+                if( treeGui.rootSplitInfo == null) {
+                    return;
+                }
+                SettingsWizard dialog = new SettingsWizard( treeGui.rootSplitInfo);
                 dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
                 dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                 dialog.setLocationRelativeTo( treeGui);

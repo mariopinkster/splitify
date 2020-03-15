@@ -1,5 +1,24 @@
 package nl.dimario.gui;
 
+/**
+ *     This file is part of Splitify
+ *
+ *     Splitify is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, version 3 of the License.
+ *
+ *     Splitify is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import nl.dimario.model.SplitInfo;
+import nl.dimario.model.WizardUtil;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,14 +27,17 @@ import java.awt.event.WindowEvent;
 
 public class SettingsWizard extends JDialog {
 
-    JPanel pnlDialog;
-    JPanel pnlButton;
-    JRadioButton radioByDepth;
-    JComboBox whatDepth;
-    JRadioButton radioByType;
-    JComboBox whatType;
+    private SplitInfo root;
 
-    public SettingsWizard() {
+    private JPanel pnlDialog;
+    private JPanel pnlButton;
+    private JRadioButton radioByDepth;
+    private JComboBox whatDepth;
+    private JRadioButton radioByType;
+    private JComboBox whatType;
+
+    public SettingsWizard(SplitInfo root) {
+        this.root = root;
         buildGui();
     }
 
@@ -83,8 +105,7 @@ public class SettingsWizard extends JDialog {
         whatDepth.addItem( "5");
 
         whatType = new JComboBox();
-        whatType.addItem( "document handle");
-        whatType.addItem( "other");
+        WizardUtil.setNodeTypeValues( this.root, whatType);
 
         JPanel pnlRadio = new JPanel();
         pnlRadio.setLayout( new GridLayout(2,2));
@@ -99,5 +120,17 @@ public class SettingsWizard extends JDialog {
         pnlOptions.add( pnlRadio);
 
         pnlDialog.add( pnlOptions, BorderLayout.CENTER);
+    }
+
+    private void applySettings() {
+        if( radioByDepth.isSelected()) {
+            int depth = Integer.parseInt( (String)whatDepth.getSelectedItem());
+            WizardUtil.clearSeparateChildNodes( this.root);
+            WizardUtil.setSeparateChildNodesByLevel( this.root, 0, depth);
+        } else if( radioByType.isSelected()) {
+            String nodeType = (String) whatType.getSelectedItem();
+            WizardUtil.clearSeparateChildNodes( this.root);
+            WizardUtil.setSeparateChildNodesByType( this.root, nodeType);
+        }
     }
 }
