@@ -81,6 +81,17 @@ public class SplitInfo implements Constants {
         return result;
     }
 
+    public boolean isIncludedInParent() {
+        SplitInfo parent = getParent();
+        if( parent == null) {
+            return false;
+        }
+        if( !parent.isSeparateChildNodes()) {
+            return true;
+        }
+        return parent.isIncludedInParent();
+    }
+
     public String getDisplayLabel() {
         return String.format( "%s = %s", nodeSegment, nodeType);
     }

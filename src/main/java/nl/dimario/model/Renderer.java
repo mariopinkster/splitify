@@ -43,12 +43,12 @@ public class Renderer implements Constants  {
             }
 
             ObjectNode wrapper = mapper.createObjectNode();
-            if( outputOptions.isAddDefinitionsConfig()) {
+            if( outputOptions.isAddDefinitionsConfig() &&  !splitInfo.isIncludedInParent()) {
                 ObjectNode config = mapper.createObjectNode();
-                config.set( nodePath, renderThis);
+                config.set(nodePath, renderThis);
                 ObjectNode definitions = mapper.createObjectNode();
-                definitions.set( CONFIG, config);
-                wrapper.set( DEFINITIONS, definitions);
+                definitions.set(CONFIG, config);
+                wrapper.set(DEFINITIONS, definitions);
             } else {
                 wrapper.set( nodePath, renderThis);
             }
@@ -95,4 +95,5 @@ public class Renderer implements Constants  {
         }
         return result;
     }
+
 }
