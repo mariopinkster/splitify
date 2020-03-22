@@ -53,6 +53,7 @@ public class TreeGui extends JFrame implements ItemListener {
     JPanel pnlLeft;
     JPanel pnlRight;
 
+    JMenuBar menuBar;
     private JTree tree;
     JTextPane preview;
     private JLabel inputFileName;
@@ -62,6 +63,11 @@ public class TreeGui extends JFrame implements ItemListener {
     private JLabel outputFileName;
     private BasicLabelUI cutoffLeft;
 
+    private JButton buttonLoad;
+    private AbstractAction fileLoad;
+    private AbstractAction fileSaveOne;
+    private AbstractAction fileSaveAll;
+    private AbstractAction fileQuit;
     private Renderer renderer;
     private FileWriter fileWriter;
     private SplitInfo rootSplitInfo;
@@ -79,6 +85,88 @@ public class TreeGui extends JFrame implements ItemListener {
                 return StringUtils.reverse(super.layoutCL(label, fontMetrics, StringUtils.reverse(text), icon, viewR, iconR, textR));
             }
         };
+    }
+
+    private void makeActions() {
+
+        final TreeGui treeGui = this;
+
+        fileLoad = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                    treeGui.selectNewInput();
+            }
+        };
+
+        fileSaveOne = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SplitInfo splitInfo = getCurrentSplitInfo();
+                if( splitInfo == null) {
+                    return;
+                }
+                try {
+                    fileWriter.writeOne(splitInfo, treeGui.renderer);
+                } catch (IOException x) {
+                    preview.setText( "ERROR: " + x.getMessage());
+                }
+            }
+        };
+
+        fileSaveAll = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (rootSplitInfo == null) {
+                    return;
+                }
+                try {
+                    fileWriter.writeAll(rootSplitInfo, treeGui.renderer);
+                } catch (IOException x) {
+                    preview.setText("ERROR: " + x.getMessage());
+                }
+            }
+        };
+
+        fileQuit = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                treeGui.processWindowEvent(
+                        new WindowEvent( treeGui, WindowEvent.WINDOW_CLOSING));
+            }
+        };
+    }
+
+    private void makeMenu() {
+        menuBar = new JMenuBar();
+        JMenuItem item;
+
+        JMenu fileMenu = new JMenu("File");
+
+        item = new JMenuItem( "Load");
+        item.addActionListener( fileLoad);
+        fileMenu.add( item);
+
+        item = new JMenuItem("Save all");
+        item.addActionListener( fileSaveAll);
+        fileMenu.add( item);
+
+        item = new JMenuItem("Save current node");
+        item.addActionListener( fileSaveOne);
+        fileMenu.add( item);
+
+        item =  new JMenuItem( "Exit");
+        item.addActionListener( fileQuit);
+        fileMenu.add( item);
+
+        menuBar.add( fileMenu);
+
+        JMenu settingsMenu  = new JMenu( "Settings");
+        settingsMenu.add( new JMenuItem( "Node settings wizard..."));
+        settingsMenu.add( new JMenuItem( "Output transformations..."));
+        menuBar.add(settingsMenu);
+        JMenu helpMenu = new JMenu( "Help");
+        menuBar.add( helpMenu);
+        this.setJMenuBar(menuBar);
     }
 
     private void makeSplitPanels() {
@@ -193,52 +281,16 @@ public class TreeGui extends JFrame implements ItemListener {
 
 
         JButton quitski = new JButton("exit");
-        quitski.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                treeGui.processWindowEvent(
-                        new WindowEvent(treeGui, WindowEvent.WINDOW_CLOSING));
-            }
-        });
+        quitski.addActionListener( fileQuit);
 
         JButton saveThis = new JButton("this");
-        saveThis.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SplitInfo splitInfo = getCurrentSplitInfo();
-                if (splitInfo == null) {
-                    return;
-                }
-                try {
-                    fileWriter.writeOne(splitInfo, treeGui.renderer);
-                } catch (IOException x) {
-                    preview.setText("ERROR: " + x.getMessage());
-                }
-            }
-        });
+        saveThis.addActionListener( fileSaveOne);
 
         JButton saveAll = new JButton("all");
-        saveAll.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (rootSplitInfo == null) {
-                    return;
-                }
-                try {
-                    fileWriter.writeAll(rootSplitInfo, treeGui.renderer);
-                } catch (IOException x) {
-                    preview.setText("ERROR: " + x.getMessage());
-                }
-            }
-        });
+        saveAll.addActionListener( fileSaveAll);
 
-        JButton loadNew = new JButton("load");
-        loadNew.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                treeGui.selectNewInput(loadNew);
-            }
-        });
+        buttonLoad = new JButton( "load");
+        buttonLoad.addActionListener( fileLoad);
 
         buttons.add( wizard);
         buttons.add(new JLabel("   "));
@@ -246,7 +298,7 @@ public class TreeGui extends JFrame implements ItemListener {
         buttons.add(saveThis);
         buttons.add(saveAll);
         buttons.add(new JLabel("   "));
-        buttons.add(loadNew);
+        buttons.add( buttonLoad);
         buttons.add(new JLabel("   "));
         buttons.add(quitski);
 
@@ -257,7 +309,7 @@ public class TreeGui extends JFrame implements ItemListener {
 
         inputFileName = new JLabel();
         inputFileName.setUI(cutoffLeft);
-        add(inputFileName, BorderLayout.NORTH);
+//        add(inputFileName, BorderLayout.NORTH);
 
         // On close save the current main window size and position
         final TreeGui guiFrame = this;
@@ -274,7 +326,10 @@ public class TreeGui extends JFrame implements ItemListener {
 
         this.setTitle("Splitify");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLayout( new BorderLayout());
 
+        makeActions();
+        makeMenu();
         makeSplitPanels();
         makeTree();
         makePreview();
@@ -285,14 +340,14 @@ public class TreeGui extends JFrame implements ItemListener {
         this.pack();
     }
 
-    private void selectNewInput(JButton button) {
+    private void selectNewInput() {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Select input file");
         if (fullFileName != null) {
             chooser.setSelectedFile(new File(fullFileName));
         }
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        if (chooser.showOpenDialog(button) == JFileChooser.APPROVE_OPTION) {
+        if( chooser.showOpenDialog( buttonLoad) == JFileChooser.APPROVE_OPTION) {
             File selectedFile = chooser.getSelectedFile();
             fullFileName = selectedFile.getAbsolutePath();
             loadTree();
