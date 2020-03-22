@@ -92,8 +92,8 @@ public class NodeSettingsWizard extends JDialog {
     private void makeWizardControls() {
 
         JLabel text = new JLabel( "Set separate file control by:");
-        radioByDepth = new JRadioButton("depth");
-        radioByType = new JRadioButton( "node type");
+        radioByDepth = new JRadioButton("stop at depth");
+        radioByType = new JRadioButton( "stop at node type");
 
         ButtonGroup radioWhat = new ButtonGroup();
         radioWhat.add( radioByDepth);
@@ -104,6 +104,9 @@ public class NodeSettingsWizard extends JDialog {
         whatDepth.addItem( "3");
         whatDepth.addItem( "4");
         whatDepth.addItem( "5");
+        whatDepth.addItem( "6");
+        whatDepth.addItem( "7");
+        whatDepth.addItem( "8");
 
         whatType = new JComboBox();
         WizardUtil.setNodeTypeValues( this.root, whatType);

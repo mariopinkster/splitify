@@ -49,9 +49,10 @@ public class WizardUtil {
 
     public static void setSeparateChildNodesByType(SplitInfo root, String type) {
 
-        String thisType = root.getNodeType();
         root.setSeparateChildNodes(true);
+        String thisType = root.getNodeType();
         if (type.equals(thisType)) {
+            root.setSeparateChildNodes(false);
             return;
         }
         if (root.getChildren() != null) {
@@ -60,16 +61,6 @@ public class WizardUtil {
             }
         }
     }
-
-//    public static void setAddDefcon(SplitInfo root, boolean newDefcon) {
-//
-//        root.setAddDefCon( newDefcon);
-//        if (root.getChildren() != null) {
-//            for (SplitInfo child : root.getChildren()) {
-//                setAddDefcon(child, newDefcon);
-//            }
-//        }
-//    }
 
     public static void setNodeTypeValues(SplitInfo root, JComboBox box) {
         Set<String> set = new HashSet<>();
