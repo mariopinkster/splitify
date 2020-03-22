@@ -43,14 +43,7 @@ This will change the font to Tahoma and the size of text in menus and other scre
 #### How does it work?
 The tree in the left pane shows a schematic representation of the contents of the input file. When you select a node in this tree the preview pane at the  right will show the content as it would be written to file.
 
-You can influence the content with the checkboxes in the option pane above the text of the preview.
-
-The checkbox **add definitions/config nodes** controls wether  the content will be wrapped in a
-
-	    definitions:
-	      config:
-
-structure or not. You can see the effect immediately in the preview.
+You can influence the content with the checkboxes in the option pane above the text of the preview, ald also via two dialogs that can be launched from the settings menu.
 
 The checkbox **childnodes in separate files** controls wether the childnodes for this node will be included in the file for the current node or not. If not, each child will be placed in its own, separate file and a directory for it (and its descendants) will
 be created when the childnode is saved. By toggling this checkbox you can see the content in the preview pane change immediately.
@@ -59,9 +52,43 @@ The editable field for the file **path segment** name lets you change the name o
 
 The above options are retained separately for each node in the tree, but they are not saved on program exit. However, the program provides sensible defaults which are set when an input file is loaded:
 
-- Adding a definitions/config wrapper is set for all nodes when the input file has such a wrapper.
+- Adding a definitions/config wrapper is set when the input file has such a wrapper.
 - Splitting up children is set for nodes at the first and second level  in the tree.
 - The directory name is derived from the node path by stripping all text before a colon (if present). If the node path has multiple segments, this is done separately for each segment.
+
+In addition, there is a settings wizard dialog that lets you set the value for this checkbox automatically based on criteria that you can select.
+
+#### How does the Node Settings Wizard work?
+This dialog pops up from the *Settings->Node Settings Wizard...*"* menu option. It lets you set the *childnodes in separate files* checkbox for all nodes at once.
+
+It presents two different ways of selecting which nodes will have their checkbox set. 
+
+By selecting the *stop at depth* radio button and setting a value in the dropdown, all nodes up to but not including that depth in the structure will have the checkbox set. All nodes lower in the structure will have the checkbox cleared. The list of node depths you can choose from is hardocded and runs from 2 to 8. While  loading a fresh input file, this setting is applied automatically with a default value of 2.
+
+Similarly, selecting the *stop at node type* radio button will set all checkboxes of all nodes up to but not including the first encountered instance of the selected node type in the path starting at the root. The node type which you can select in this case are loaded dynamically from the document, the dropdown contains a list of all primary node types present in the input document.
+
+So if you for instance select the *hippo:handle* node type, all your content will be split up into one document per file, with each file containing all three versions of the document (draft, unpublished, published).
+
+To actually apply the settings in this dialog to all nodes, use the **do it** button. This will first clear all checkboxes of all nodes, and then set the checkboxes of the nodes as indicated by the controls in this dialog starting at the root node and working downwards recursively.
+
+Note that the dialog is modal, you can only see changes in the preview once it has closed again.
+
+#### What do the output transformations do?
+The checkbox **add definitions/config nodes** controls wether  the content will be wrapped in a
+
+	    definitions:
+	      config:
+
+structure or not. The effect of this setting is shown in the preview after closing the dialog. There is some logic that suppresses the efect of this setting for nodes that will be included in the output file of on of their ancestor nodes. The wrapper is only shown for nodes that will actually have their own output file.
+
+Note that the initial value for this checkbox is set dynamically during the loading and analysis of the input file.
+
+The other three checkboxes are present for exeptional cases. The content of the nodes is kept interbally in a structure of JSON nodes in memory and rendered using the ObjectMapper. Unfortunately, the output as delivered by ObjectMapper does not comply perfectly with the YAML syntax as exxpected by Bloomreach. So there is some postprocessing going on in an attempt to hammer the square pegs into the triangular holes.
+
+Still more unfortunately, such hammering sometimes also affects the actual content of the nodes by removing quotes and other unwanted changes.
+
+By manipulating these checkboxes you can suppress some of the postprocessing and hope that this will leave you with a usable splitup file.
+
 
 #### How and where is the output saved?
 There are two **save**  buttons. You can choose to save only the file for the node that is currently selected (the content of the preview pane will be written to the file path shown in the options pane).
