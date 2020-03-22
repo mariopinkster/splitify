@@ -195,9 +195,7 @@ public class TreeGui extends JFrame {
         settingsMenu.add(item);
 
         menuBar.add(settingsMenu);
-        JMenu helpMenu = new JMenu( "Help");
 
-        menuBar.add( helpMenu);
         this.setJMenuBar(menuBar);
     }
 
@@ -259,16 +257,27 @@ public class TreeGui extends JFrame {
         JPanel pnlOptions = new JPanel();
         pnlOptions.setLayout(new BorderLayout());
 
-        JPanel widgets = new JPanel();
-        widgets.setLayout(new GridLayout(4, 2));
+        JPanel pnlLabels = new JPanel();
+        pnlLabels.setLayout( new BoxLayout( pnlLabels, BoxLayout.PAGE_AXIS));
+        pnlLabels.add(new JLabel("childnodes in separate files"));
+        pnlLabels.add( new JLabel("file path segment"));
+        pnlLabels.add( new JLabel("output file"));
+        for( Component comp: pnlLabels.getComponents()) {
+            if( comp instanceof JLabel) {
+                ((JLabel) comp).setAlignmentX( JLabel.LEFT_ALIGNMENT);
+            }
+        }
 
-        widgets.add(new JLabel("childnodes in separate files"));
+        JPanel pnlWidgets = new JPanel();
+        pnlWidgets.setLayout( new BoxLayout( pnlWidgets, BoxLayout.PAGE_AXIS));
+
         separateChildren = new JCheckBox();
         separateChildren.addItemListener(separateChildrenChanged);
-        widgets.add(separateChildren);
+        separateChildren.setAlignmentX(JCheckBox.LEFT_ALIGNMENT);
+        pnlWidgets.add(separateChildren);
 
-        widgets.add(new JLabel("file path segment"));
         dirsegment = new JTextField("(directory)", 15);
+        dirsegment.setAlignmentX(JTextField.LEFT_ALIGNMENT);
         dirsegment.addFocusListener(new FocusListener() {
 
             @Override
@@ -280,14 +289,15 @@ public class TreeGui extends JFrame {
                 setModelFromDisplay();
             }
         });
-        widgets.add(dirsegment);
+        pnlWidgets.add(dirsegment);
 
-        widgets.add(new JLabel("output file"));
         outputFileName = new JLabel("(filename goes here)");
         outputFileName.setUI(cutoffLeft);
-        widgets.add(outputFileName);
+        outputFileName.setAlignmentX(JLabel.LEFT_ALIGNMENT);
+        pnlWidgets.add(outputFileName);
 
-        pnlOptions.add(widgets, BorderLayout.CENTER);
+        pnlOptions.add(pnlLabels, BorderLayout.WEST);
+        pnlOptions.add(pnlWidgets, BorderLayout.CENTER);
 
         pnlRight.add(pnlOptions, BorderLayout.NORTH);
     }
@@ -341,7 +351,7 @@ public class TreeGui extends JFrame {
 
     private void buildGui() {
 
-        this.setTitle("Splitify");
+        this.setTitle("Splitify v 0.9.3");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLayout( new BorderLayout());
 

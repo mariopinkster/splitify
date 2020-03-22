@@ -91,7 +91,6 @@ public class NodeSettingsWizard extends JDialog {
 
     private void makeWizardControls() {
 
-        JLabel text = new JLabel( "Set separate file control by:");
         radioByDepth = new JRadioButton("stop at depth");
         radioByType = new JRadioButton( "stop at node type");
 
@@ -118,10 +117,12 @@ public class NodeSettingsWizard extends JDialog {
         pnlRadio.add( radioByType);
         pnlRadio.add( whatType);
 
+        JLabel text = new JLabel( "Set separate file control by:");
+
         JPanel pnlOptions = new JPanel();
-        pnlOptions.setLayout(new BoxLayout( pnlOptions, BoxLayout.Y_AXIS));
-        pnlOptions.add( text);
-        pnlOptions.add( pnlRadio);
+        pnlOptions.setLayout(new BorderLayout());
+        pnlOptions.add( text, BorderLayout.NORTH);
+        pnlOptions.add( pnlRadio, BorderLayout.CENTER);
 
         pnlDialog.add( pnlOptions, BorderLayout.CENTER);
     }
