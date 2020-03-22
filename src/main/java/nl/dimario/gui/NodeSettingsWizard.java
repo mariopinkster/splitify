@@ -25,7 +25,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 
-public class SettingsWizard extends JDialog {
+public class NodeSettingsWizard extends JDialog {
 
     private SplitInfo root;
 
@@ -36,7 +36,7 @@ public class SettingsWizard extends JDialog {
     private JRadioButton radioByType;
     private JComboBox whatType;
 
-    public SettingsWizard(SplitInfo root) {
+    public NodeSettingsWizard(SplitInfo root) {
         this.root = root;
         buildGui();
     }
@@ -63,7 +63,7 @@ public class SettingsWizard extends JDialog {
 
         JPanel buttons = new JPanel();
         buttons.setLayout(new FlowLayout(FlowLayout.CENTER));
-        final SettingsWizard dialog = this;
+        final NodeSettingsWizard dialog = this;
 
         JButton doit = new JButton("do it");
         doit.addActionListener(new ActionListener() {

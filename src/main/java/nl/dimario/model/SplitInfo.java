@@ -31,7 +31,6 @@ public class SplitInfo implements Constants {
     private String dirSegment;
     private String nodeType;
     private JsonNode jsonNode;
-    private boolean addDefCon;
     private boolean separateChildNodes;
 
     private List<SplitInfo> children;
@@ -146,14 +145,6 @@ public class SplitInfo implements Constants {
 
     public void setParent(SplitInfo parent) {
         this.parent = parent;
-    }
-
-    public boolean isAddDefCon() {
-        return addDefCon;
-    }
-
-    public void setAddDefCon(boolean addDefCon) {
-        this.addDefCon = addDefCon;
     }
 
     public boolean isSeparateChildNodes() {

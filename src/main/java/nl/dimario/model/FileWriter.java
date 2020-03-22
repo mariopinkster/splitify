@@ -38,25 +38,25 @@ public class FileWriter {
         this.baseDir = FilenameUtils.getFullPath( fullFileName);
     }
 
-    public void writeOne( SplitInfo splitInfo, Renderer renderer) throws IOException {
+    public void writeOne( SplitInfo splitInfo, OutputOptions outputOptions, Renderer renderer) throws IOException {
         String filePath = splitInfo.getFilePath();
         filePath = FilenameUtils.concat( baseDir, filePath);
         String outDir = FilenameUtils.getFullPathNoEndSeparator(filePath);
         (new File(outDir)).mkdirs();
         try( FileOutputStream fos = new FileOutputStream( new File( filePath))) {
-            String data = renderer.preview( splitInfo);
+            String data = renderer.preview( splitInfo, outputOptions);
             IOUtils.write( data, fos, StandardCharsets.UTF_8);
         }
     }
 
-    public void writeAll( SplitInfo splitInfo, Renderer renderer) throws IOException {
+    public void writeAll( SplitInfo splitInfo, OutputOptions outputOptions, Renderer renderer) throws IOException {
 
         if (! (Constants.DOCUMENTROOT.equals( splitInfo.getNodeSegment()))) {
-            writeOne(splitInfo, renderer);
+            writeOne(splitInfo, outputOptions, renderer);
         }
         if( splitInfo.getChildren() != null && splitInfo.isSeparateChildNodes()) {
             for( SplitInfo child: splitInfo.getChildren()) {
-                writeAll( child, renderer);
+                writeAll( child, outputOptions, renderer);
             }
         }
     }

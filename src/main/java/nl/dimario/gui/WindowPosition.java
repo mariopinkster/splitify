@@ -25,7 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-public class GuiSettings implements Constants {
+public class WindowPosition implements Constants {
 
     static private final String TOP = "window.top";
     static private final String LEFT = "window.left";

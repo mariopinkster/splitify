@@ -17,7 +17,6 @@ package nl.dimario.gui;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
@@ -35,18 +34,14 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import nl.dimario.model.*;
+import nl.dimario.model.Renderer;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import nl.dimario.model.Analyzer;
-import nl.dimario.model.FileWriter;
-import nl.dimario.model.Mapper;
-import nl.dimario.model.Renderer;
-import nl.dimario.model.SplitInfo;
-
-public class TreeGui extends JFrame implements ItemListener {
+public class TreeGui extends JFrame {
 
     private String fullFileName;
 
@@ -55,10 +50,10 @@ public class TreeGui extends JFrame implements ItemListener {
 
     JMenuBar menuBar;
     private JTree tree;
+    private OutputOptions outputOptions;
     JTextPane preview;
     private JLabel inputFileName;
     private JCheckBox separateChildren;
-    private JCheckBox defcon;
     private JTextField dirsegment;
     private JLabel outputFileName;
     private BasicLabelUI cutoffLeft;
@@ -69,6 +64,7 @@ public class TreeGui extends JFrame implements ItemListener {
     private AbstractAction fileSaveAll;
     private AbstractAction fileQuit;
     private AbstractAction settingsWizard;
+    private AbstractAction settingsOutputOptions;
     private Renderer renderer;
     private FileWriter fileWriter;
     private SplitInfo rootSplitInfo;
@@ -86,6 +82,7 @@ public class TreeGui extends JFrame implements ItemListener {
                 return StringUtils.reverse(super.layoutCL(label, fontMetrics, StringUtils.reverse(text), icon, viewR, iconR, textR));
             }
         };
+        outputOptions = new OutputOptions();
     }
 
     private void makeActions() {
@@ -107,7 +104,7 @@ public class TreeGui extends JFrame implements ItemListener {
                     return;
                 }
                 try {
-                    fileWriter.writeOne(splitInfo, treeGui.renderer);
+                    fileWriter.writeOne(splitInfo, outputOptions, treeGui.renderer);
                 } catch (IOException x) {
                     preview.setText( "ERROR: " + x.getMessage());
                 }
@@ -121,7 +118,7 @@ public class TreeGui extends JFrame implements ItemListener {
                     return;
                 }
                 try {
-                    fileWriter.writeAll(rootSplitInfo, treeGui.renderer);
+                    fileWriter.writeAll(rootSplitInfo, outputOptions, treeGui.renderer);
                 } catch (IOException x) {
                     preview.setText("ERROR: " + x.getMessage());
                 }
@@ -142,7 +139,18 @@ public class TreeGui extends JFrame implements ItemListener {
                 if( treeGui.rootSplitInfo == null) {
                     return;
                 }
-                SettingsWizard dialog = new SettingsWizard( treeGui.rootSplitInfo);
+                NodeSettingsWizard dialog = new NodeSettingsWizard( treeGui.rootSplitInfo);
+                dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+                dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                dialog.setLocationRelativeTo( treeGui);
+                dialog.setVisible(true);
+            }
+        };
+
+        settingsOutputOptions = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                OutputSettings dialog = new OutputSettings( outputOptions);
                 dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
                 dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                 dialog.setLocationRelativeTo( treeGui);
@@ -174,15 +182,19 @@ public class TreeGui extends JFrame implements ItemListener {
         fileMenu.add( item);
 
         menuBar.add( fileMenu);
-
         JMenu settingsMenu  = new JMenu( "Settings");
+
         item = new JMenuItem( "Node settings wizard...");
         item.addActionListener( settingsWizard);
         settingsMenu.add( item);
 
-        settingsMenu.add( new JMenuItem( "Output transformations..."));
+        item = new JMenuItem( "Output transformations...");
+        item.addActionListener(settingsOutputOptions);
+        settingsMenu.add(item);
+
         menuBar.add(settingsMenu);
         JMenu helpMenu = new JMenu( "Help");
+
         menuBar.add( helpMenu);
         this.setJMenuBar(menuBar);
     }
@@ -235,6 +247,13 @@ public class TreeGui extends JFrame implements ItemListener {
 
     private void makeOptions() {
 
+        ItemListener separateChildrenChanged = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                setModelFromDisplay();
+            }
+        };
+
         JPanel pnlOptions = new JPanel();
         pnlOptions.setLayout(new BorderLayout());
 
@@ -243,13 +262,8 @@ public class TreeGui extends JFrame implements ItemListener {
 
         widgets.add(new JLabel("childnodes in separate files"));
         separateChildren = new JCheckBox();
-        separateChildren.addItemListener(this);
+        separateChildren.addItemListener(separateChildrenChanged);
         widgets.add(separateChildren);
-
-        widgets.add(new JLabel("add definition/config nodes"));
-        defcon = new JCheckBox();
-        defcon.addItemListener(this);
-        widgets.add(defcon);
 
         widgets.add(new JLabel("file path segment"));
         dirsegment = new JTextField("(directory)", 15);
@@ -317,7 +331,7 @@ public class TreeGui extends JFrame implements ItemListener {
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent event) {
-                GuiSettings settings = new GuiSettings();
+                WindowPosition settings = new WindowPosition();
                 settings.saveWindowDimension(guiFrame);
             }
         });
@@ -413,8 +427,7 @@ public class TreeGui extends JFrame implements ItemListener {
         String newDirsegment = dirsegment.getText();
         splitInfo.setDirSegment(newDirsegment);
         splitInfo.setSeparateChildNodes(separateChildren.isSelected());
-        splitInfo.setAddDefCon(defcon.isSelected());
-        String content = renderer.preview(splitInfo);
+        String content = renderer.preview(splitInfo, outputOptions);
         preview.setText(content);
         preview.setCaretPosition(0);
         outputFileName.setText(splitInfo.getFilePath());
@@ -431,10 +444,9 @@ public class TreeGui extends JFrame implements ItemListener {
             updatingData = false;
             return;
         }
-        String content = renderer.preview(splitInfo);
+        String content = renderer.preview(splitInfo, outputOptions);
         preview.setText(content);
         preview.setCaretPosition(0);
-        defcon.setSelected(splitInfo.isAddDefCon());
         separateChildren.setSelected(splitInfo.isSeparateChildNodes());
         dirsegment.setText(splitInfo.getDirSegment());
         outputFileName.setText(splitInfo.getFilePath());
@@ -453,14 +465,6 @@ public class TreeGui extends JFrame implements ItemListener {
         return (SplitInfo) uo;
     }
 
-    @Override
-    public void itemStateChanged(ItemEvent e) {
-        Object o = e.getItem();
-        if (o instanceof JCheckBox) {
-            setModelFromDisplay();
-        }
-    }
-
     public static void main(String args[]) {
 
         TreeGui gui = new TreeGui();
@@ -473,7 +477,7 @@ public class TreeGui extends JFrame implements ItemListener {
         } else {
             gui.loadEmptyTree();
         }
-        GuiSettings settings = new GuiSettings();
+        WindowPosition settings = new WindowPosition();
         settings.loadWindowDimension(gui);
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {

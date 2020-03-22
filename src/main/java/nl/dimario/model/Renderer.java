@@ -15,23 +15,20 @@ package nl.dimario.model;
  *     along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.apache.commons.io.output.ByteArrayOutputStream;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import nl.dimario.Constants;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
+import java.util.Map;
 
 public class Renderer implements Constants  {
 
-    public String preview( SplitInfo splitInfo) {
+    public String preview(SplitInfo splitInfo, OutputOptions outputOptions) {
 
         ObjectMapper mapper = Mapper.getMapper();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -46,7 +43,7 @@ public class Renderer implements Constants  {
             }
 
             ObjectNode wrapper = mapper.createObjectNode();
-            if( splitInfo.isAddDefCon()) {
+            if( outputOptions.isAddDefinitionsConfig()) {
                 ObjectNode config = mapper.createObjectNode();
                 config.set( nodePath, renderThis);
                 ObjectNode definitions = mapper.createObjectNode();
