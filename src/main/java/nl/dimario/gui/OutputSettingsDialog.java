@@ -6,14 +6,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class OutputSettings extends JDialog {
+public class OutputSettingsDialog extends JDialog {
 
     private OutputOptions options;
     private JPanel pnlDialog;
     private JPanel pnlButton;
     private JCheckBox addDefcon;
 
-    public OutputSettings( OutputOptions options) {
+    public OutputSettingsDialog(OutputOptions options) {
         this.options = options;
         buildGui();
     }
@@ -40,7 +40,7 @@ public class OutputSettings extends JDialog {
 
         JPanel pnlButtons = new JPanel();
         pnlButtons.setLayout(new FlowLayout(FlowLayout.CENTER));
-        final OutputSettings dialog = this;
+        final OutputSettingsDialog dialog = this;
 
         JButton close = new JButton("close");
         close.addActionListener(new ActionListener() {

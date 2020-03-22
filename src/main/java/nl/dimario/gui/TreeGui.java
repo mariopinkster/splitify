@@ -150,7 +150,7 @@ public class TreeGui extends JFrame {
         settingsOutputOptions = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                OutputSettings dialog = new OutputSettings( outputOptions);
+                OutputSettingsDialog dialog = new OutputSettingsDialog( outputOptions);
                 dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
                 dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                 dialog.setLocationRelativeTo( treeGui);
