@@ -54,7 +54,7 @@ public class Renderer implements Constants  {
             }
             sw.write(wrapper);
             String data = bos.toString( StandardCharsets.UTF_8);
-            return postProcess( data);
+            return postProcess( data, outputOptions);
 
         } catch (Exception x) {
             return "ERROR: " + x.getMessage();
@@ -65,13 +65,19 @@ public class Renderer implements Constants  {
      * Post process the output to remove the ideosyncrasies introduced by
      * the Jackson JsonNode to text process.
      */
-    protected String postProcess( String data) {
+    protected String postProcess( String data, OutputOptions outputOptions) {
 
-        data = data.replace( "[${", "['${");
-        data = data.replace( "}]", "}']");
-        data = data.replace( "'[", "[");
-        data = data.replace( "]'", "]");
-        data = data.replace( "''", "'");
+        if( outputOptions.isAddQuotesToPlaceholder()) {
+            data = data.replace("[${", "['${");
+            data = data.replace("}]", "}']");
+        }
+        if( outputOptions.isRemoveQuotesFromArray()) {
+            data = data.replace("'[", "[");
+            data = data.replace("]'", "]");
+        }
+        if( outputOptions.isRemoveExtraQuotes()) {
+            data = data.replace("''", "'");
+        }
         return data;
     }
 

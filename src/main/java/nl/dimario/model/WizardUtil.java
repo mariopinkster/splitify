@@ -61,15 +61,15 @@ public class WizardUtil {
         }
     }
 
-    public static void setAddDefcon(SplitInfo root, boolean newDefcon) {
-
-        root.setAddDefCon( newDefcon);
-        if (root.getChildren() != null) {
-            for (SplitInfo child : root.getChildren()) {
-                setAddDefcon(child, newDefcon);
-            }
-        }
-    }
+//    public static void setAddDefcon(SplitInfo root, boolean newDefcon) {
+//
+//        root.setAddDefCon( newDefcon);
+//        if (root.getChildren() != null) {
+//            for (SplitInfo child : root.getChildren()) {
+//                setAddDefcon(child, newDefcon);
+//            }
+//        }
+//    }
 
     public static void setNodeTypeValues(SplitInfo root, JComboBox box) {
         Set<String> set = new HashSet<>();

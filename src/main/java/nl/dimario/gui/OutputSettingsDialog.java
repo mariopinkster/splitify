@@ -12,6 +12,10 @@ public class OutputSettingsDialog extends JDialog {
     private JPanel pnlDialog;
     private JPanel pnlButton;
     private JCheckBox addDefcon;
+    private JCheckBox addQuotesToPlaceholder;
+    private JCheckBox removeQuotesFromArray;
+    private JCheckBox removeExtraQuotes;
+
 
     public OutputSettingsDialog(OutputOptions options) {
         this.options = options;
@@ -24,6 +28,7 @@ public class OutputSettingsDialog extends JDialog {
         makePanels();
         makeButtons();
         makeControls();
+        this.pack();
     }
 
     private void makePanels() {
@@ -64,6 +69,12 @@ public class OutputSettingsDialog extends JDialog {
                     JCheckBox checkBox = (JCheckBox) o;
                     if( checkBox == addDefcon) {
                         options.setAddDefinitionsConfig( checkBox.isSelected());
+                    } else if( checkBox == addQuotesToPlaceholder) {
+                        options.setAddQuotesToPlaceholder( checkBox.isSelected());
+                    } else if( checkBox == removeQuotesFromArray) {
+                        options.setRemoveQuotesFromArray(checkBox.isSelected());
+                    } else if( checkBox == removeExtraQuotes) {
+                        options.setRemoveExtraQuotes(checkBox.isSelected());
                     }
                 }
             }
@@ -71,10 +82,26 @@ public class OutputSettingsDialog extends JDialog {
 
         JPanel pnlOptions = new JPanel();
         pnlOptions.setLayout( new GridLayout( 4, 1));
+
         addDefcon = new JCheckBox( "Add definition / config wrappers");
         addDefcon.setSelected(options.isAddDefinitionsConfig());
         addDefcon.addItemListener( checkboxListener);
         pnlOptions.add( addDefcon);
+
+        addQuotesToPlaceholder = new JCheckBox("Add quotes around   ${ ... }   placeholder");
+        addQuotesToPlaceholder.setSelected(options.isAddQuotesToPlaceholder());
+        addQuotesToPlaceholder.addItemListener( checkboxListener);
+        pnlOptions.add(addQuotesToPlaceholder);
+
+        removeQuotesFromArray = new JCheckBox( "Remove quotes from inline array");
+        removeQuotesFromArray.setSelected( options.isRemoveQuotesFromArray());
+        removeQuotesFromArray.addItemListener( checkboxListener);
+        pnlOptions.add(removeQuotesFromArray);
+
+        removeExtraQuotes = new JCheckBox( "Remove other extra quotes");
+        removeExtraQuotes.setSelected(options.isRemoveExtraQuotes());
+        removeExtraQuotes.addItemListener(checkboxListener);
+        pnlOptions.add(removeExtraQuotes);
 
         pnlDialog.add( pnlOptions, BorderLayout.CENTER);
     }

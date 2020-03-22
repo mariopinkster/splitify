@@ -144,6 +144,7 @@ public class TreeGui extends JFrame {
                 dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                 dialog.setLocationRelativeTo( treeGui);
                 dialog.setVisible(true);
+                setDisplayFromModel();
             }
         };
 
@@ -155,6 +156,7 @@ public class TreeGui extends JFrame {
                 dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                 dialog.setLocationRelativeTo( treeGui);
                 dialog.setVisible(true);
+                setDisplayFromModel();
             }
         };
     }
@@ -395,6 +397,10 @@ public class TreeGui extends JFrame {
     private void loadTreeFromNode(ObjectNode rootNode) {
         Analyzer analyzer = new Analyzer();
         DefaultMutableTreeNode jroot = analyzer.makeJtree(rootNode);
+        outputOptions.setAddDefinitionsConfig( analyzer.isAddDefCon());
+        outputOptions.setRemoveExtraQuotes(true);
+        outputOptions.setRemoveQuotesFromArray(true);
+        outputOptions.setAddQuotesToPlaceholder(true);
         rootSplitInfo = (SplitInfo) jroot.getUserObject();
         ((DefaultTreeModel) tree.getModel()).setRoot(jroot);
         TreePath pathToVisible = null;

@@ -47,6 +47,7 @@ public class NodeSettingsWizard extends JDialog {
         makePanels();
         makeButtons();
         makeWizardControls();
+        this.pack();
     }
 
     private void makePanels() {

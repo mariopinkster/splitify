@@ -30,15 +30,20 @@ public class RendererTest {
     @Test
     public void testPostProcess() {
 
+        OutputOptions options = new OutputOptions();
+
         Renderer r = new Renderer();
         String input = "wicket.id: ${cluster.id}.left";
-        assertEquals( "wicket.id: ${cluster.id}.left", r.postProcess( input));
+        options.setAddQuotesToPlaceholder(true);
+        assertEquals( "wicket.id: ${cluster.id}.left", r.postProcess( input, options));
 
+        options.setRemoveExtraQuotes(true);
         input =  "jcr:mixinTypes: [''editor:editable'', ''mix:referenceable'']";
-        assertEquals( "jcr:mixinTypes: ['editor:editable', 'mix:referenceable']", r.postProcess( input));
+        assertEquals( "jcr:mixinTypes: ['editor:editable', 'mix:referenceable']", r.postProcess( input, options));
 
+        options.setRemoveQuotesFromArray(true);
         input =  "hst:parametervalues: [''${1}'', ''${2}'']";
-        assertEquals( "hst:parametervalues: ['${1}', '${2}']", r.postProcess( input));
+        assertEquals( "hst:parametervalues: ['${1}', '${2}']", r.postProcess( input, options));
     }
 
     @Test
