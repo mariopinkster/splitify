@@ -68,6 +68,7 @@ public class TreeGui extends JFrame implements ItemListener {
     private AbstractAction fileSaveOne;
     private AbstractAction fileSaveAll;
     private AbstractAction fileQuit;
+    private AbstractAction settingsWizard;
     private Renderer renderer;
     private FileWriter fileWriter;
     private SplitInfo rootSplitInfo;
@@ -134,6 +135,20 @@ public class TreeGui extends JFrame implements ItemListener {
                         new WindowEvent( treeGui, WindowEvent.WINDOW_CLOSING));
             }
         };
+
+        settingsWizard  = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if( treeGui.rootSplitInfo == null) {
+                    return;
+                }
+                SettingsWizard dialog = new SettingsWizard( treeGui.rootSplitInfo);
+                dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+                dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                dialog.setLocationRelativeTo( treeGui);
+                dialog.setVisible(true);
+            }
+        };
     }
 
     private void makeMenu() {
@@ -161,7 +176,10 @@ public class TreeGui extends JFrame implements ItemListener {
         menuBar.add( fileMenu);
 
         JMenu settingsMenu  = new JMenu( "Settings");
-        settingsMenu.add( new JMenuItem( "Node settings wizard..."));
+        item = new JMenuItem( "Node settings wizard...");
+        item.addActionListener( settingsWizard);
+        settingsMenu.add( item);
+
         settingsMenu.add( new JMenuItem( "Output transformations..."));
         menuBar.add(settingsMenu);
         JMenu helpMenu = new JMenu( "Help");
@@ -264,22 +282,6 @@ public class TreeGui extends JFrame implements ItemListener {
         JPanel buttons = new JPanel();
         buttons.setLayout(new FlowLayout(FlowLayout.CENTER));
 
-        JButton wizard = new JButton("wizard");
-        wizard.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if( treeGui.rootSplitInfo == null) {
-                    return;
-                }
-                SettingsWizard dialog = new SettingsWizard( treeGui.rootSplitInfo);
-                dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
-                dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-                dialog.setLocationRelativeTo( treeGui);
-                dialog.setVisible(true);
-            }
-        });
-
-
         JButton quitski = new JButton("exit");
         quitski.addActionListener( fileQuit);
 
@@ -292,7 +294,6 @@ public class TreeGui extends JFrame implements ItemListener {
         buttonLoad = new JButton( "load");
         buttonLoad.addActionListener( fileLoad);
 
-        buttons.add( wizard);
         buttons.add(new JLabel("   "));
         buttons.add(new JLabel("save: "));
         buttons.add(saveThis);
@@ -309,7 +310,7 @@ public class TreeGui extends JFrame implements ItemListener {
 
         inputFileName = new JLabel();
         inputFileName.setUI(cutoffLeft);
-//        add(inputFileName, BorderLayout.NORTH);
+        add(inputFileName, BorderLayout.SOUTH);
 
         // On close save the current main window size and position
         final TreeGui guiFrame = this;
