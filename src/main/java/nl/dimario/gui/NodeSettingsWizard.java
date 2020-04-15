@@ -117,7 +117,7 @@ public class NodeSettingsWizard extends JDialog {
         pnlRadio.add( radioByType);
         pnlRadio.add( whatType);
 
-        JLabel text = new JLabel( "Set separate file control by:");
+        JLabel text = new JLabel( "Set all childnodes separate checkboxes");
 
         JPanel pnlOptions = new JPanel();
         pnlOptions.setLayout(new BorderLayout());

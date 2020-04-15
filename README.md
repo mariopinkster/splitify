@@ -1,4 +1,3 @@
-#### What does it do?
 It splits up a single ***.yaml** file into multiple parts. The files holding the lower level information are placed in a structure of subdirectories. It works interactively, you get a GUI that lets you control what goes where.
 
 #### How do I build it?
@@ -65,7 +64,7 @@ It presents two different ways of selecting which nodes will have their checkbox
 
 By selecting the *stop at depth* radio button and setting a value in the dropdown, all nodes up to but not including that depth in the structure will have the checkbox set. All nodes lower in the structure will have the checkbox cleared. The list of node depths you can choose from is hardocded and runs from 2 to 8. While  loading a fresh input file, this setting is applied automatically with a default value of 2.
 
-Similarly, selecting the *stop at node type* radio button will set all checkboxes of all nodes up to but not including the first encountered instance of the selected node type in the path starting at the root. The node type which you can select in this case are loaded dynamically from the document, the dropdown contains a list of all primary node types present in the input document.
+Similarly, selecting the *stop at node type* radio button will set all checkboxes of all nodes up to but not including the first encountered instance of the selected node type in the path starting at the root. The node types which you can select in this case are loaded dynamically from Yaml file, the dropdown contains a list of all primary node types present.
 
 So if you for instance select the *hippo:handle* node type, all your content will be split up into one document per file, with each file containing all three versions of the document (draft, unpublished, published).
 
@@ -83,7 +82,7 @@ structure or not. The effect of this setting is shown in the preview after closi
 
 Note that the initial value for this checkbox is set dynamically during the loading and analysis of the input file.
 
-The other three checkboxes are present for exeptional cases. The content of the nodes is kept interbally in a structure of JSON nodes in memory and rendered using the ObjectMapper. Unfortunately, the output as delivered by ObjectMapper does not comply perfectly with the YAML syntax as exxpected by Bloomreach. So there is some postprocessing going on in an attempt to hammer the square pegs into the triangular holes.
+The other three checkboxes are present for exeptional cases. The content of the nodes is kept internally in a structure of JSON nodes in memory and rendered using the ObjectMapper. Unfortunately, the output as delivered by ObjectMapper does not comply perfectly with the YAML syntax as expected by Bloomreach. So there is some postprocessing going on in an attempt to hammer the square pegs into the triangular holes.
 
 Still more unfortunately, such hammering sometimes also affects the actual content of the nodes by removing quotes and other unwanted changes.
 
