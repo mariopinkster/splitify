@@ -1,3 +1,4 @@
+#### What does it do?
 It splits up a single ***.yaml** file into multiple parts. The files holding the lower level information are placed in a structure of subdirectories. It works interactively, you get a GUI that lets you control what goes where.
 
 #### How do I build it?
