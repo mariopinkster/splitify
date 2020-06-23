@@ -73,22 +73,22 @@ To actually apply the settings in this dialog to all nodes, use the **do it** bu
 
 Note that the dialog is modal, you can only see changes in the preview once it has closed again.
 
-#### What do the output transformations do?
+#### What does the add definitions / config nodes option do?
 The checkbox **add definitions/config nodes** controls wether  the content will be wrapped in a
 
 	    definitions:
 	      config:
 
-structure or not. The effect of this setting is shown in the preview after closing the dialog. There is some logic that suppresses the efect of this setting for nodes that will be included in the output file of on of their ancestor nodes. The wrapper is only shown for nodes that will actually have their own output file.
+structure or not. The effect of this setting is shown in the preview. There is some logic that suppresses the efect of this setting for nodes that will be included in the output file of on of their ancestor nodes. The wrapper is only shown for nodes that will actually have their own output file.
 
 Note that the initial value for this checkbox is set dynamically during the loading and analysis of the input file.
 
-The other three checkboxes are present for exeptional cases. The content of the nodes is kept internally in a structure of JSON nodes in memory and rendered using the ObjectMapper. Unfortunately, the output as delivered by ObjectMapper does not comply perfectly with the YAML syntax as expected by Bloomreach. So there is some postprocessing going on in an attempt to hammer the square pegs into the triangular holes.
-
-Still more unfortunately, such hammering sometimes also affects the actual content of the nodes by removing quotes and other unwanted changes.
-
-By manipulating these checkboxes you can suppress some of the postprocessing and hope that this will leave you with a usable splitup file.
-
+#### What does the remove Uuids option do?
+When checked, all lines of the form 
+```
+    jcr:uuid: abba666-dead-3168-3141592653
+```
+are filtered out. This is useful when you are preparing content from production for inclusion in the development data. This option is initially **on** in all cases.
 
 #### How and where is the output saved?
 There are two **save**  buttons. You can choose to save only the file for the node that is currently selected (the content of the preview pane will be written to the file path shown in the options pane).
