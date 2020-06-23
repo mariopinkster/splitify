@@ -56,6 +56,8 @@ public class TreeGui extends JFrame {
     private JCheckBox separateChildren;
     private JTextField dirsegment;
     private JLabel outputFileName;
+    private JCheckBoxMenuItem addDefinitionConfigs;
+    private JCheckBoxMenuItem removeUuids;
     private BasicLabelUI cutoffLeft;
 
     private JButton buttonLoad;
@@ -151,11 +153,8 @@ public class TreeGui extends JFrame {
         settingsOutputOptions = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                OutputSettingsDialog dialog = new OutputSettingsDialog( outputOptions);
-                dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
-                dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-                dialog.setLocationRelativeTo( treeGui);
-                dialog.setVisible(true);
+                outputOptions.setAddDefinitionsConfig( addDefinitionConfigs.isSelected());
+                outputOptions.setRemoveUuids( removeUuids.isSelected());
                 setDisplayFromModel();
             }
         };
@@ -190,9 +189,13 @@ public class TreeGui extends JFrame {
         item.addActionListener( settingsWizard);
         settingsMenu.add( item);
 
-        item = new JMenuItem( "Output transformations...");
-        item.addActionListener(settingsOutputOptions);
-        settingsMenu.add(item);
+        addDefinitionConfigs = new JCheckBoxMenuItem(( "Add definition / config header"));
+        addDefinitionConfigs.addActionListener(settingsOutputOptions);
+        settingsMenu.add(addDefinitionConfigs);
+
+        removeUuids = new JCheckBoxMenuItem("Remove UUIDs");
+        removeUuids.addActionListener(settingsOutputOptions);
+        settingsMenu.add(removeUuids);
 
         menuBar.add(settingsMenu);
 
@@ -408,9 +411,7 @@ public class TreeGui extends JFrame {
         Analyzer analyzer = new Analyzer();
         DefaultMutableTreeNode jroot = analyzer.makeJtree(rootNode);
         outputOptions.setAddDefinitionsConfig( analyzer.isAddDefCon());
-        outputOptions.setRemoveExtraQuotes(true);
-        outputOptions.setRemoveQuotesFromArray(true);
-        outputOptions.setAddQuotesToPlaceholder(true);
+        outputOptions.setRemoveUuids(true);
         rootSplitInfo = (SplitInfo) jroot.getUserObject();
         ((DefaultTreeModel) tree.getModel()).setRoot(jroot);
         TreePath pathToVisible = null;
@@ -442,6 +443,8 @@ public class TreeGui extends JFrame {
         String newDirsegment = dirsegment.getText();
         splitInfo.setDirSegment(newDirsegment);
         splitInfo.setSeparateChildNodes(separateChildren.isSelected());
+        outputOptions.setRemoveUuids(removeUuids.isSelected());
+        outputOptions.setAddDefinitionsConfig(addDefinitionConfigs.isSelected());
         String content = renderer.preview(splitInfo, outputOptions);
         preview.setText(content);
         preview.setCaretPosition(0);
@@ -465,6 +468,8 @@ public class TreeGui extends JFrame {
         separateChildren.setSelected(splitInfo.isSeparateChildNodes());
         dirsegment.setText(splitInfo.getDirSegment());
         outputFileName.setText(splitInfo.getFilePath());
+        addDefinitionConfigs.setSelected(outputOptions.isAddDefinitionsConfig());
+        removeUuids.setSelected(outputOptions.isRemoveUuids());
         updatingData = false;
     }
 

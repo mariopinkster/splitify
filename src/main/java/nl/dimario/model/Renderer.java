@@ -57,8 +57,10 @@ public class Renderer implements Constants  {
             }
             sw.write(wrapper);
             String data = bos.toString( StandardCharsets.UTF_8);
-            return postProcess( data, outputOptions);
-//            return data;
+            if(outputOptions.isRemoveUuids()) {
+                data = removeAllUUids(data);
+            }
+            return postProcess( data);
 
         } catch (Exception x) {
             return "ERROR: " + x.getMessage();
@@ -67,11 +69,10 @@ public class Renderer implements Constants  {
 
     /**
      * Post process the output:
-     * - remove double quotes around arrays (but not around innocent text)
-     * - optionally remove UUIDs
+     * Remove double quotes around arrays (but not around innocent text)
      */
-    protected String postProcess( String data, OutputOptions outputOptions) {
-        StringBuffer sb  = new StringBuffer(data.length() + 200);
+    protected String postProcess( String data) {
+        StringBuffer sb  = new StringBuffer(data.length());
         Pattern array = Pattern.compile( "^(\\s+\\S+: )(\"\\[)(.*)(]\")", Pattern.MULTILINE);
         Matcher arrayMatcher = array.matcher(data);
         while(arrayMatcher.find()) {
@@ -80,6 +81,21 @@ public class Renderer implements Constants  {
             arrayMatcher.appendReplacement(sb, keepThis + "[" + keepThisToo + "]");
         }
         arrayMatcher.appendTail(sb);
+        return sb.toString();
+    }
+
+    /**
+     * Post process the output:
+     * Remove all lines containing a "jcr:uuid" value
+     */
+    protected String removeAllUUids(String data) {
+        StringBuffer sb  = new StringBuffer(data.length());
+        Pattern uuid = Pattern.compile( "\\s+jcr:uuid:.*$", Pattern.MULTILINE);
+        Matcher uuidMatcher = uuid.matcher(data);
+        while(uuidMatcher.find()) {
+            uuidMatcher.appendReplacement(sb, "");
+        }
+        uuidMatcher.appendTail(sb);
         return sb.toString();
     }
 
