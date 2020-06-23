@@ -17,7 +17,7 @@
         <freemarker.version>2.3.28</freemarker.version>
         <commons-io.version>2.6</commons-io.version>
         <commons-lang3.version>3.8.1</commons-lang3.version>
-        <jackson.version>2.10.1</jackson.version>
+        <jackson.version>2.11.0</jackson.version>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.version>3.8.1</maven.compiler.version>

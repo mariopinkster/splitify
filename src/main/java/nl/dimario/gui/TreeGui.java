@@ -423,7 +423,6 @@ public class TreeGui extends JFrame {
             }
         }
         tree.setSelectionPath(pathToVisible);
-        tree.scrollPathToVisible(pathToVisible);
         tree.setRootVisible(false);
         setDisplayFromModel();
         this.fileWriter = new FileWriter(fullFileName);
