@@ -3,9 +3,8 @@ package nl.dimario.model;
 public class OutputOptions {
 
     private boolean addDefinitionsConfig;
-    private boolean addQuotesToPlaceholder;
-    private boolean removeQuotesFromArray;
-    private boolean removeExtraQuotes;
+    private boolean removeUuids;
+
 
     public boolean isAddDefinitionsConfig() {
         return addDefinitionsConfig;
@@ -15,27 +14,11 @@ public class OutputOptions {
         this.addDefinitionsConfig = addDefinitionsConfig;
     }
 
-    public boolean isAddQuotesToPlaceholder() {
-        return addQuotesToPlaceholder;
+    public boolean isRemoveUuids() {
+        return removeUuids;
     }
 
-    public void setAddQuotesToPlaceholder(boolean addQuotesToPlaceholder) {
-        this.addQuotesToPlaceholder = addQuotesToPlaceholder;
-    }
-
-    public boolean isRemoveQuotesFromArray() {
-        return removeQuotesFromArray;
-    }
-
-    public void setRemoveQuotesFromArray(boolean removeQuotesFromArray) {
-        this.removeQuotesFromArray = removeQuotesFromArray;
-    }
-
-    public boolean isRemoveExtraQuotes() {
-        return removeExtraQuotes;
-    }
-
-    public void setRemoveExtraQuotes(boolean removeExtraQuotes) {
-        this.removeExtraQuotes = removeExtraQuotes;
+    public void setRemoveUuids(boolean removeUuids) {
+        this.removeUuids = removeUuids;
     }
 }
