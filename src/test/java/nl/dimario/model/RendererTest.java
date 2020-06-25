@@ -19,11 +19,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
+import java.util.LinkedHashMap;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.junit.Test;
 
 public class RendererTest {
 
@@ -43,24 +41,25 @@ public class RendererTest {
     @Test
     public void testStripStructure() {
 
-        ObjectMapper m = Mapper.getMapper();
-        ObjectNode input = m.createObjectNode();
+        LinkedHashMap<String,Object> input = new LinkedHashMap<>();
+
         input.put( "AA", "aa");
-        ObjectNode struct = m.createObjectNode();
-        input.set( "STRUCT", struct);
+        LinkedHashMap<String,Object> struct = new LinkedHashMap<>();
+        input.put( "STRUCT", struct);
         input.put( "BBB", new Integer( 12));
-        ArrayNode array =m.createArrayNode();
-        input.set( "ARRAY", array);
+        LinkedHashMap<String,Object> array = new LinkedHashMap<>();
+
+        input.put( "ARRAY", array);
         input.put( "CCCC", "cccc");
 
         Renderer r = new Renderer();
-        ObjectNode result = r.stripStructures( input);
+        LinkedHashMap<String, Object> result = r.stripStructures( input);
 
-        assertFalse( result.has( "STRUCT"));
-        assertFalse( result.has( "ARRAY"));
-        assertTrue( result.has( "AA"));
-        assertTrue( result.has( "BBB"));
-        assertTrue( result.has( "CCCC"));
+        assertFalse( result.containsKey( "STRUCT"));
+        assertFalse( result.containsKey( "ARRAY"));
+        assertTrue( result.containsKey( "AA"));
+        assertTrue( result.containsKey( "BBB"));
+        assertTrue( result.containsKey( "CCCC"));
     }
 
 }

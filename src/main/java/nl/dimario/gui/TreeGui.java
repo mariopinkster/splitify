@@ -24,7 +24,9 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -37,9 +39,7 @@ import javax.swing.tree.TreePath;
 import nl.dimario.model.*;
 import nl.dimario.model.Renderer;
 import org.apache.commons.lang3.StringUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.yaml.snakeyaml.Yaml;
 
 public class TreeGui extends JFrame {
 
@@ -386,10 +386,10 @@ public class TreeGui extends JFrame {
 
     private void loadTree() {
         try {
-            ObjectMapper mapper = Mapper.getMapper();
-            ObjectNode rootNode = (ObjectNode) mapper.readTree(
-                    new File(fullFileName));
-            loadTreeFromNode(rootNode);
+            Yaml yaml = new Yaml();
+            FileInputStream fis = new FileInputStream( new File( fullFileName));
+            Map rootMap = yaml.load(fis);
+            loadTreeFromMap(rootMap);
         } catch (Exception x) {
             preview.setText("ERROR: " + x.getMessage());
         }
@@ -398,18 +398,17 @@ public class TreeGui extends JFrame {
     private void loadEmptyTree() {
         String emptyFile = "/emptyFile:\n  no-data-loaded:empty\n";
         try {
-            ObjectMapper mapper = Mapper.getMapper();
-            ObjectNode rootNode = (ObjectNode) mapper.readTree(
-                    emptyFile);
-            loadTreeFromNode(rootNode);
+            Yaml yaml = new Yaml();
+            Map rootMap = yaml.load(emptyFile);
+            loadTreeFromMap(rootMap);
         } catch (Exception x) {
             preview.setText("ERROR: " + x.getMessage());
         }
     }
 
-    private void loadTreeFromNode(ObjectNode rootNode) {
+    private void loadTreeFromMap(Map rootMap) {
         Analyzer analyzer = new Analyzer();
-        DefaultMutableTreeNode jroot = analyzer.makeJtree(rootNode);
+        DefaultMutableTreeNode jroot = analyzer.makeTree(rootMap);
         outputOptions.setAddDefinitionsConfig( analyzer.isAddDefCon());
         outputOptions.setRemoveUuids(true);
         rootSplitInfo = (SplitInfo) jroot.getUserObject();

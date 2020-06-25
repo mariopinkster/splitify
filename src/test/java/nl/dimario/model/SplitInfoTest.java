@@ -20,13 +20,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.apache.commons.lang3.SystemUtils;
-import org.junit.Before;
-import org.junit.Test;
+import java.util.LinkedHashMap;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.lang3.SystemUtils;
+import org.junit.Test;
 
 import nl.dimario.Constants;
 
@@ -36,18 +33,10 @@ public class SplitInfoTest {
     private static String DIRSEGMENT ="directory";
     private static String TESTNODETYPE = "hippo:excavator";
 
-    private ObjectMapper mapper;
-
-    @Before
-    public void setup() {
-
-        this.mapper = Mapper.getMapper();
-    }
-
     @Test
     public void testConstructor() {
 
-        ObjectNode node = mapper.createObjectNode();
+        LinkedHashMap<String,Object> node = new LinkedHashMap<>();
         SplitInfo test  = new SplitInfo( NODESEGMENT, node);
         assertEquals( "unknown node type", test.getNodeType());
         assertEquals(DIRSEGMENT, test.getDirSegment());
@@ -60,7 +49,7 @@ public class SplitInfoTest {
     @Test
     public void testSetDirSegment() {
 
-        ObjectNode node = mapper.createObjectNode();
+        LinkedHashMap<String,Object> node = new LinkedHashMap<>();
         SplitInfo test  = new SplitInfo( NODESEGMENT, node);
 
         test.setDirSegment( "/simple");
@@ -86,12 +75,12 @@ public class SplitInfoTest {
     @Test
     public void testAddChild() {
 
-        ObjectNode a = mapper.createObjectNode();
+        LinkedHashMap<String,Object> a = new LinkedHashMap<>();
         SplitInfo parent = new SplitInfo( "/a:Aaa", a);
 
         assertNull( parent.getChildren());
 
-        ObjectNode b = mapper.createObjectNode();
+        LinkedHashMap<String,Object> b = new LinkedHashMap<>();
         SplitInfo child = new SplitInfo( "/b:Bbb", b);
 
         parent.addChild( child);
@@ -103,9 +92,9 @@ public class SplitInfoTest {
     private void createTree( SplitInfo node, int level) {
 
         for( int i=0; i < level; i++) {
-            ObjectNode json = mapper.createObjectNode();
+            LinkedHashMap<String,Object> localNode = new LinkedHashMap<>();
             String nodesegment = String.format( "/%d:%d-%d", level, i, level);
-            SplitInfo splitInfo = new SplitInfo( nodesegment, json);
+            SplitInfo splitInfo = new SplitInfo( nodesegment, localNode);
             node.addChild( splitInfo);
             createTree( splitInfo, level-1);
         }
@@ -114,8 +103,8 @@ public class SplitInfoTest {
     @Test
     public void testNodeAndFilePath() {
 
-        JsonNode jsonRoot = mapper.createObjectNode();
-        SplitInfo root = new SplitInfo(Constants.DOCUMENTROOT, jsonRoot);
+        LinkedHashMap<String,Object> rootMap = new LinkedHashMap<>();
+        SplitInfo root = new SplitInfo(Constants.DOCUMENTROOT, rootMap);
         createTree(root, 3);
 
         String rootFilePath = root.getFilePath();

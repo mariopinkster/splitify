@@ -15,48 +15,48 @@ package nl.dimario.model;
  *     along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SequenceWriter;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import nl.dimario.Constants;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.yaml.snakeyaml.Yaml;
+
+import nl.dimario.Constants;
 
 public class Renderer implements Constants  {
 
     public String preview(SplitInfo splitInfo, OutputOptions outputOptions) {
 
-        ObjectMapper mapper = Mapper.getMapper();
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
 
-            SequenceWriter sw = mapper.writer().writeValues( bos);
             String nodePath = splitInfo.getNodePath();
 
-            JsonNode renderThis = splitInfo.getJsonNode();
+            LinkedHashMap<String, Object> renderThis = splitInfo.getDataMap();
             if( splitInfo.isSeparateChildNodes()) {
                 renderThis = stripStructures( renderThis);
             }
 
-            ObjectNode wrapper = mapper.createObjectNode();
+            LinkedHashMap<String, Object> wrapper = new LinkedHashMap<>();
             if( outputOptions.isAddDefinitionsConfig() &&  !splitInfo.isIncludedInParent()) {
-                ObjectNode config = mapper.createObjectNode();
-                config.set(nodePath, renderThis);
-                ObjectNode definitions = mapper.createObjectNode();
-                definitions.set(CONFIG, config);
-                wrapper.set(DEFINITIONS, definitions);
+                LinkedHashMap<String, Object> config = new LinkedHashMap<>();
+                config.put(nodePath, renderThis);
+                LinkedHashMap<String, Object> definitions = new LinkedHashMap<>();
+                definitions.put(CONFIG, config);
+                wrapper.put(DEFINITIONS, definitions);
             } else {
-                wrapper.set( nodePath, renderThis);
+                wrapper.put( nodePath, renderThis);
             }
-            sw.write(wrapper);
-            String data = bos.toString( StandardCharsets.UTF_8);
+
+            Yaml yaml = new Yaml();
+            StringWriter sw = new StringWriter();
+            yaml.dump(wrapper, sw);
+            String data = sw.toString();
             if(outputOptions.isRemoveUuids()) {
                 data = removeAllUUids(data);
             }
@@ -99,16 +99,14 @@ public class Renderer implements Constants  {
         return sb.toString();
     }
 
-    protected ObjectNode stripStructures(JsonNode node) {
+    protected LinkedHashMap<String, Object> stripStructures(LinkedHashMap<String, Object> node) {
 
-        ObjectNode result = Mapper.getMapper().createObjectNode();
-        Iterator<Map.Entry<String,JsonNode>> fields = node.fields();
-        while(fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
+        LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+        for( Map.Entry<String,Object> field : node.entrySet()) {
             String key = field.getKey();
-            JsonNode value = field.getValue();
-            if( value.isValueNode()) {
-                result.set( key, value);
+            Object value = field.getValue();
+            if( ! (value instanceof LinkedHashMap)) {
+                result.put( key, value);
             }
         }
         return result;

@@ -1,10 +1,13 @@
 package nl.dimario.model;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.*;
-import java.util.*;
 
 /**
  *     This file is part of Splitify

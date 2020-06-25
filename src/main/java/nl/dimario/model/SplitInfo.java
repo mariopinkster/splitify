@@ -17,11 +17,10 @@ package nl.dimario.model;
 
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 import nl.dimario.Constants;
 
@@ -30,19 +29,19 @@ public class SplitInfo implements Constants {
     private String nodeSegment;
     private String dirSegment;
     private String nodeType;
-    private JsonNode jsonNode;
+    private LinkedHashMap<String, Object> dataMap;
     private boolean separateChildNodes;
 
     private List<SplitInfo> children;
     private SplitInfo parent;
 
-    public SplitInfo( String nodeSegment, JsonNode jsonNode) {
-        this.jsonNode = jsonNode;
+    public SplitInfo( String nodeSegment, LinkedHashMap<String, Object> dataMap) {
+        this.dataMap = dataMap;
         this.nodeSegment = nodeSegment;
         setDirSegment( nodeSegment);
-        JsonNode primaryTypeNode = jsonNode.get( PRIMARYTYPE);
+        Object primaryTypeNode = dataMap.get( PRIMARYTYPE);
         if( primaryTypeNode != null) {
-            this.setNodeType( primaryTypeNode.textValue());
+            this.setNodeType( (String) primaryTypeNode);
         } else {
             this.setNodeType( "unknown node type");
         }
@@ -138,12 +137,12 @@ public class SplitInfo implements Constants {
         this.nodeType = nodeType;
     }
 
-    public JsonNode getJsonNode() {
-        return jsonNode;
+    public LinkedHashMap<String, Object> getDataMap() {
+        return dataMap;
     }
 
-    public void setJsonNode(JsonNode jsonNode) {
-        this.jsonNode = jsonNode;
+    public void setDataMap(LinkedHashMap<String, Object> dataMap) {
+        this.dataMap = dataMap;
     }
 
     public List<SplitInfo> getChildren() {
